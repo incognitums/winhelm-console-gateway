@@ -141,7 +141,8 @@ function Stop-Core {
     Start-Process -FilePath 'powershell.exe' `
         -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $script:Paths.StopCorePs1) `
         -WorkingDirectory $script:Root `
-        -WindowStyle Hidden
+        -WindowStyle Hidden `
+        -Wait
     "Stopping WinHelm Core..."
 }
 
