@@ -75,6 +75,7 @@ async function alwaysAllowToolPolicy(toolName, waitJobId = "") {
   } else {
     existing.toolPolicy = { ...(existing.toolPolicy || {}), [toolName]: "auto" };
   }
+  existing.approval = { ...(existing.approval || {}), mode: "trusted" };
   if (!VALID_CORE_PRESETS.has(existing.profilePreset)) {
     existing.profilePreset = existing.terminal?.mode === "full" ? "power" : "balanced";
   }

@@ -904,6 +904,7 @@ if (t.startsWith('terminal_') || t === 'command_run') {
 } else {
   c.toolPolicy = { ...(c.toolPolicy || {}), [t]: 'auto' };
 }
+c.approval = { ...(c.approval || {}), mode: 'trusted' };
 const validPresets = new Set(['safe', 'balanced', 'power', 'minimal', 'core', 'dev', 'sysadmin', 'full']);
 if (!validPresets.has(c.profilePreset)) {
   c.profilePreset = (c.terminal && c.terminal.mode === 'full') ? 'power' : 'balanced';
@@ -1078,7 +1079,7 @@ function Show-TrayApprovalDialog {
         $tn = [string]$Job.tool
         if ($tn.StartsWith('terminal_') -or $tn -eq 'command_run') {
             $ans = [System.Windows.Forms.MessageBox]::Show(
-                "Setting '$tn' to Always Approve will switch Terminal Mode to Full (Auto) for all terminal_* commands.`n`nContinue?",
+                "Setting '$tn' to Always Approve will set Terminal Mode to Full and Approval Mode to Trusted.`n`nContinue?",
                 'Always Approve Terminal',
                 [System.Windows.Forms.MessageBoxButtons]::YesNo,
                 [System.Windows.Forms.MessageBoxIcon]::Warning)

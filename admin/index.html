@@ -1937,7 +1937,7 @@ el('ap-always').onclick = async () => {
   if (tn.startsWith('terminal_') || tn === 'command_run') {
     const ok = await uiConfirm(
       t('อนุญาตคำสั่ง Terminal ทั้งหมดอัตโนมัติ?', 'Always allow all terminal commands?'),
-      t(`การตั้ง "${tn}" เป็น Always Approve จะเปลี่ยน Terminal Mode เป็น Full (Auto) สำหรับคำสั่ง terminal_* ทั้งหมด`, `Setting "${tn}" to Always Approve switches Terminal Mode to Full (Auto) for all terminal_* tools.`),
+      t(`การตั้ง "${tn}" เป็น Always Approve จะเปลี่ยน Terminal Mode เป็น Full และ Approval Mode เป็น Trusted`, `Setting "${tn}" to Always Approve sets Terminal Mode to Full and Approval Mode to Trusted.`),
       true
     );
     if (!ok) return;
