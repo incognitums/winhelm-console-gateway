@@ -862,6 +862,34 @@ public static class WinHelmDwm {
     } catch { }
 }
 
+function Set-TrayToolAlwaysAuto {
+    param([string] $ToolName)
+    if (-not $ToolName -or $ToolName -notmatch '^[A-Za-z0-9._-]+$') { return $false }
+    $candidates = @(
+        (Join-Path (Split-Path -Parent $script:Root) 'winhelm-mcp\winhelm.local.json'),
+        (Join-Path $env:USERPROFILE '.winhelm\winhelm.local.json'),
+        (Join-Path $env:USERPROFILE '.winhelm\config.json')
+    )
+    $cfgPath = $candidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+    if (-not $cfgPath) { return $false }
+    try {
+        $js = @"
+import fs from 'node:fs';
+const p = process.argv[1], t = process.argv[2];
+const c = JSON.parse(fs.readFileSync(p, 'utf8'));
+if (t.startsWith('terminal_') || t === 'command_run') {
+  c.terminal = { ...(c.terminal || {}), mode: 'full' };
+  c.allowSystemExecution = true;
+} else {
+  c.toolPolicy = { ...(c.toolPolicy || {}), [t]: 'auto' };
+}
+fs.writeFileSync(p, JSON.stringify(c, null, 2) + '\n', 'utf8');
+"@
+        & node --input-type=module -e $js $cfgPath $ToolName 2>$null
+        return ($LASTEXITCODE -eq 0)
+    } catch { return $false }
+}
+
 function Show-TrayApprovalDialog {
     param($Job, [int] $PendingCount = 1)
     $bgMain   = [System.Drawing.Color]::FromArgb(17, 19, 24)
@@ -960,8 +988,8 @@ function Show-TrayApprovalDialog {
 
     $btnConsole = New-Object System.Windows.Forms.Button
     $btnConsole.Location = New-Object System.Drawing.Point(24, 216)
-    $btnConsole.Size = New-Object System.Drawing.Size(116, 34)
-    $btnConsole.Text = 'Open Console'
+    $btnConsole.Size = New-Object System.Drawing.Size(104, 34)
+    $btnConsole.Text = 'Console'
     $btnConsole.Font = New-Object System.Drawing.Font('Segoe UI', 9)
     $btnConsole.BackColor = $bgCard
     $btnConsole.ForeColor = $inkMuted
@@ -972,9 +1000,23 @@ function Show-TrayApprovalDialog {
     $btnConsole.DialogResult = [System.Windows.Forms.DialogResult]::Retry
     $form.Controls.Add($btnConsole)
 
+    $btnAlways = New-Object System.Windows.Forms.Button
+    $btnAlways.Location = New-Object System.Drawing.Point(162, 216)
+    $btnAlways.Size = New-Object System.Drawing.Size(112, 34)
+    $btnAlways.Text = 'Always Approve'
+    $btnAlways.Font = New-Object System.Drawing.Font('Segoe UI', 9)
+    $btnAlways.BackColor = [System.Drawing.Color]::FromArgb(30, 58, 138)
+    $btnAlways.ForeColor = [System.Drawing.Color]::FromArgb(191, 219, 254)
+    $btnAlways.FlatStyle = 'Flat'
+    $btnAlways.FlatAppearance.BorderSize = 1
+    $btnAlways.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(59, 130, 246)
+    $btnAlways.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::FromArgb(37, 99, 235)
+    $btnAlways.DialogResult = [System.Windows.Forms.DialogResult]::Ignore
+    $form.Controls.Add($btnAlways)
+
     $btnApprove = New-Object System.Windows.Forms.Button
-    $btnApprove.Location = New-Object System.Drawing.Point(272, 216)
-    $btnApprove.Size = New-Object System.Drawing.Size(92, 34)
+    $btnApprove.Location = New-Object System.Drawing.Point(282, 216)
+    $btnApprove.Size = New-Object System.Drawing.Size(86, 34)
     $btnApprove.Text = 'Approve'
     $btnApprove.Font = New-Object System.Drawing.Font('Segoe UI', 9.5, [System.Drawing.FontStyle]::Bold)
     $btnApprove.BackColor = [System.Drawing.Color]::FromArgb(22, 163, 74)
@@ -987,8 +1029,8 @@ function Show-TrayApprovalDialog {
     $form.Controls.Add($btnApprove)
 
     $btnDeny = New-Object System.Windows.Forms.Button
-    $btnDeny.Location = New-Object System.Drawing.Point(372, 216)
-    $btnDeny.Size = New-Object System.Drawing.Size(84, 34)
+    $btnDeny.Location = New-Object System.Drawing.Point(376, 216)
+    $btnDeny.Size = New-Object System.Drawing.Size(80, 34)
     $btnDeny.Text = 'Deny'
     $btnDeny.Font = New-Object System.Drawing.Font('Segoe UI', 9.5)
     $btnDeny.BackColor = $bgCard
@@ -1007,7 +1049,22 @@ function Show-TrayApprovalDialog {
     $res = $form.ShowDialog()
     $form.Dispose()
 
-    if ($res -eq [System.Windows.Forms.DialogResult]::Yes) {
+    if ($res -eq [System.Windows.Forms.DialogResult]::Ignore) {
+        $tn = [string]$Job.tool
+        if ($tn.StartsWith('terminal_') -or $tn -eq 'command_run') {
+            $ans = [System.Windows.Forms.MessageBox]::Show(
+                "Setting '$tn' to Always Approve will switch Terminal Mode to Full (Auto) for all terminal_* commands.`n`nContinue?",
+                'Always Approve Terminal',
+                [System.Windows.Forms.MessageBoxButtons]::YesNo,
+                [System.Windows.Forms.MessageBoxIcon]::Warning)
+            if ($ans -ne 'Yes') { return }
+        }
+        $outcome = Invoke-TrayJobDecision -JobId $Job.id -Decision 'approved'
+        $polOk = $false
+        if ($outcome.ok) { $polOk = Set-TrayToolAlwaysAuto -ToolName $tn }
+        $msg = if ($outcome.ok -and $polOk) { "Always Approved: $tn (Auto)" } elseif ($outcome.ok) { "Approved once (policy file not found)" } else { "Approve failed: $($outcome.message)" }
+        $script:Notify.ShowBalloonTip(3500, 'WinHelm', $msg, 'Info')
+    } elseif ($res -eq [System.Windows.Forms.DialogResult]::Yes) {
         $outcome = Invoke-TrayJobDecision -JobId $Job.id -Decision 'approved'
         $msg = if ($outcome.ok) { "Approved: $($Job.tool)" } else { "Approve failed: $($outcome.message)" }
         $script:Notify.ShowBalloonTip(3000, 'WinHelm', $msg, 'Info')

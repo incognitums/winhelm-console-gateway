@@ -63,7 +63,21 @@ function getGlobalNodeModules() {
   return cachedGlobalNodeModules;
 }
 
-function resolveWinHelmCoreFile(...segments) {
+async function alwaysAllowToolPolicy(toolName) {
+  if (!toolName || !/^[A-Za-z0-9._-]+$/.test(toolName)) return false;
+  const existing = (await loadWinHelmConfig()) || { schemaVersion: 2, toolPolicy: {} };
+  const isTerminal = toolName.startsWith("terminal_") || toolName === "command_run";
+  if (isTerminal) {
+    existing.terminal = { ...(existing.terminal || {}), mode: "full", approvalTtlSeconds: existing.terminal?.approvalTtlSeconds || 300 };
+    existing.allowSystemExecution = true;
+  } else {
+    existing.toolPolicy = { ...(existing.toolPolicy || {}), [toolName]: "auto" };
+  }
+  await saveWinHelmConfig(existing);
+  return true;
+}
+
+async function resolveWinHelmCoreFile(...segments) {
   const candidates = [
     path.join(WINHELM_CORE_DIR, ...segments),
     path.join(ROOT, "node_modules", "winhelm-mcp", ...segments),
@@ -1206,6 +1220,8 @@ async function handleApi(req, res, url) {
     const body = await readJsonBody(req);
     const jobId = String(body?.jobId ?? "").trim();
     const decision = body?.decision;
+    const alwaysApprove = body?.alwaysApprove === true;
+    const toolName = String(body?.toolName ?? "").trim();
     if (!jobId || !/^[A-Za-z0-9._:-]+$/.test(jobId)) {
       return json(res, 400, { error: "valid jobId is required" });
     }
@@ -1223,11 +1239,19 @@ async function handleApi(req, res, url) {
       if (!outcome?.ok) {
         return json(res, 400, { ok: false, error: outcome?.message || "Approval decision failed" });
       }
-      return json(res, 200, { ok: true, jobId, decision, state: outcome.state });
+      let policyUpdated = false;
+      if (decision === "approve" && alwaysApprove && toolName) {
+        policyUpdated = await alwaysAllowToolPolicy(toolName).catch(() => false);
+      }
+      return json(res, 200, { ok: true, jobId, decision, state: outcome.state, policyUpdated });
     }
     const run = await runWinHelmCli([decision, jobId]);
     if (run.code !== 0) return json(res, 500, { ok: false, error: run.err.trim() || run.out.trim() });
-    return json(res, 200, { ok: true, jobId, decision, out: run.out.trim() });
+    let policyUpdated = false;
+    if (decision === "approve" && alwaysApprove && toolName) {
+      policyUpdated = await alwaysAllowToolPolicy(toolName).catch(() => false);
+    }
+    return json(res, 200, { ok: true, jobId, decision, out: run.out.trim(), policyUpdated });
   }
 
   if (req.method === "POST" && url.pathname === "/api/upstream-token") {

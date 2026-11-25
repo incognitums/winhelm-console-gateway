@@ -838,8 +838,9 @@
   </div>
   <div style="font-size:13px;margin-bottom:4px">Tool: <code id="ap-tool">-</code></div>
   <div class="sub" id="ap-summary" style="margin-bottom:14px;word-break:break-word"></div>
-  <div style="display:flex;gap:8px;justify-content:flex-end">
+  <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
     <button class="btn-xs danger-outline" id="ap-deny" data-i18n="ap.deny">✕ ปฏิเสธ</button>
+    <button class="btn-xs primary" id="ap-always" data-i18n="ap.always">⚡ อนุมัติเสมอ</button>
     <button class="btn-xs success" id="ap-approve" data-i18n="ap.approve">✔ อนุมัติทันที</button>
   </div>
 </div>
@@ -1872,16 +1873,20 @@ async function loadCoreMonitor() {
   }
 }
 
-async function decideJob(jobId, decision) {
+async function decideJob(jobId, decision, extra = {}) {
   try {
-    await api('/api/core/jobs/decide', { method: 'POST', body: JSON.stringify({ jobId, decision }) });
-    show('ok', `${decision === 'approve' ? 'อนุมัติ' : 'ปฏิเสธ'}คำขอ ${jobId} แล้ว`);
+    await api('/api/core/jobs/decide', { method: 'POST', body: JSON.stringify({ jobId, decision, ...extra }) });
+    show('ok', extra.alwaysApprove
+      ? t(`อนุมัติและตั้ง "${extra.toolName}" เป็น Auto แล้ว`, `Approved & set "${extra.toolName}" to Auto`)
+      : `${decision === 'approve' ? t('อนุมัติ', 'Approved') : t('ปฏิเสธ', 'Denied')} ${jobId}`);
     await pollApprovals();
     if (el('tab-monitor').classList.contains('active')) await loadCoreMonitor();
+    if (extra.alwaysApprove && el('tab-tools').classList.contains('active')) await loadSchemaV2();
   } catch (err) { show('err', err.message); }
 }
 
 let activePendingJobId = null;
+let activePendingToolName = '';
 async function pollApprovals() {
   try {
     const res = await api('/api/core/jobs');
@@ -1895,12 +1900,14 @@ async function pollApprovals() {
     if (pending.length > 0) {
       const first = pending[0];
       activePendingJobId = first.jobId;
-      el('ap-count').textContent = `${pending.length} คิว`;
-      el('ap-tool').textContent = first.toolName || 'tool';
+      activePendingToolName = first.toolName || 'tool';
+      el('ap-count').textContent = `${pending.length} ${t('คิว', 'pending')}`;
+      el('ap-tool').textContent = activePendingToolName;
       el('ap-summary').textContent = first.summary || first.jobId;
       popup.style.display = 'block';
     } else {
       activePendingJobId = null;
+      activePendingToolName = '';
       popup.style.display = 'none';
     }
   } catch {}
@@ -1908,6 +1915,19 @@ async function pollApprovals() {
 
 el('ap-approve').onclick = () => { if (activePendingJobId) decideJob(activePendingJobId, 'approve'); };
 el('ap-deny').onclick = () => { if (activePendingJobId) decideJob(activePendingJobId, 'deny'); };
+el('ap-always').onclick = async () => {
+  if (!activePendingJobId) return;
+  const tn = activePendingToolName;
+  if (tn.startsWith('terminal_') || tn === 'command_run') {
+    const ok = await uiConfirm(
+      t('อนุญาตคำสั่ง Terminal ทั้งหมดอัตโนมัติ?', 'Always allow all terminal commands?'),
+      t(`การตั้ง "${tn}" เป็น Always Approve จะเปลี่ยน Terminal Mode เป็น Full (Auto) สำหรับคำสั่ง terminal_* ทั้งหมด`, `Setting "${tn}" to Always Approve switches Terminal Mode to Full (Auto) for all terminal_* tools.`),
+      true
+    );
+    if (!ok) return;
+  }
+  await decideJob(activePendingJobId, 'approve', { alwaysApprove: true, toolName: tn });
+};
 setInterval(pollApprovals, 3000);
 setTimeout(pollApprovals, 1000);
 
@@ -2015,6 +2035,7 @@ const EN_TEXT = {
   'mon.colStatus': 'Status',
   'ap.title': '🛡️ Command Approval Request (Ask)',
   'ap.deny': '✕ Deny',
+  'ap.always': '⚡ Always Approve',
   'ap.approve': '✔ Approve Now'
 };
 
