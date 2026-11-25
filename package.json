@@ -1,0 +1,15 @@
+{
+  "name": "winhelm-console-gateway",
+  "version": "1.0.0",
+  "description": "Unified Desktop Console, System Tray, and Gemini/OAuth Ingress Gateway for WinHelm MCP",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "console": "node admin/admin-server.mjs",
+    "oauth": "node oauth-setup.mjs",
+    "tray": "pwsh.exe -NoProfile -ExecutionPolicy Bypass -File tray/winhelm-tray.ps1"
+  },
+  "author": "incognitums",
+  "license": "MIT"
+}

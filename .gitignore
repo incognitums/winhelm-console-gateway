@@ -1,0 +1,12 @@
+*.pid
+*.log
+*.log.*
+*.dpapi
+*.lnk
+node_modules/
+config.json
+config-backups/
+decrypt.ps1
+test_probe_google.mjs
+verify_secret.mjs
+winhelm.local.legacy-backup.json

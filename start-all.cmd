@@ -1,0 +1,13 @@
+@echo off
+setlocal
+cd /d "%~dp0"
+echo [WinHelm] Starting Core MCP Server (18790)...
+call "%~dp0start-core.cmd"
+echo [WinHelm] Starting Gateway Proxy (18788)...
+call "%~dp0start-gateway.cmd"
+echo [WinHelm] Starting System Tray...
+call "%~dp0start-tray.cmd"
+echo [WinHelm] Starting Control Console...
+start "" "%~dp0start-console.cmd"
+echo [WinHelm] All services initiated successfully!
+endlocal

@@ -1,0 +1,20 @@
+{
+  "_readme": "WinHelm Unified Console & Gemini Gateway configuration template",
+  "listenPort": 18788,
+  "adminPort": 18789,
+  "upstreamUrl": "http://127.0.0.1:18790/mcp",
+  "baseUrl": "https://your-machine.tailnet.ts.net/mcp",
+  "oauth": {
+    "enabled": true,
+    "authority": "https://your-machine.tailnet.ts.net",
+    "clientId": "winhelm-gemini-01",
+    "clientIds": [
+      "winhelm-gemini-01"
+    ],
+    "storePath": "",
+    "_note": "กด '⚡ ซิงค์ Tailscale' และ '➕ สร้าง Client' ใน Console เพื่อตั้งค่าอัตโนมัติ"
+  },
+  "allowQueryToken": false,
+  "allowTools": [],
+  "denyTools": []
+}
