@@ -34,6 +34,23 @@
 6. **⚡ Silent System Tray (`WinHelm Tray.lnk`):**
    - เปิดแอป System Tray ได้โดย **ไม่มีหน้าต่าง PowerShell ค้าง** (ผ่าน `wscript.exe` + `tray\launch-tray.vbs`)
    - ไอคอนโลโก้ WinHelm พร้อมจุดสถานะที่มุมขวาล่าง (เทา = Stopped, น้ำเงิน = Local, แดง = Public)
+   - รองรับปุ่มสลับภาษา **ไทย / EN** และธีม **สว่าง / มืด** ในหน้า Console
+
+---
+
+## 📸 ภาพหน้าจอ (Screenshots)
+
+### 1. ตั้งค่า & เชื่อมต่อ (Setup & OAuth Connection)
+![Setup and Connection](docs/picture/set_conn.png)
+
+### 2. จัดการ Invites (Invites Manager)
+![Invites Manager](docs/picture/invite.png)
+
+### 3. นโยบาย Tools — Schema v2 (Tools Policy)
+![Tools Policy](docs/picture/tools.png)
+
+### 4. จัดการ Services & Tailscale Funnel (Services Control)
+![Services Control](docs/picture/services.png)
 
 ---
 

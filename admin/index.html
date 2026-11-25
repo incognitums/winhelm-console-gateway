@@ -482,39 +482,39 @@
       <button class="nav-item active" data-tab="tab-setup">
         <span class="nav-left">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          ตั้งค่า &amp; เชื่อมต่อ
+          <span data-i18n="nav.setup">ตั้งค่า &amp; เชื่อมต่อ</span>
         </span>
       </button>
       <button class="nav-item" data-tab="tab-invites">
         <span class="nav-left">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
-          จัดการ Invites
+          <span data-i18n="nav.invites">จัดการ Invites</span>
         </span>
         <span class="nav-badge" id="tab-invite-count">0</span>
       </button>
       <button class="nav-item" data-tab="tab-tools">
         <span class="nav-left">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-          นโยบาย Tools
+          <span data-i18n="nav.tools">นโยบาย Tools</span>
         </span>
         <span class="nav-badge" id="tab-tools-count">56</span>
       </button>
       <button class="nav-item" data-tab="tab-services">
         <span class="nav-left">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
-          จัดการ Services
+          <span data-i18n="nav.services">จัดการ Services</span>
         </span>
       </button>
       <button class="nav-item" data-tab="tab-logs">
         <span class="nav-left">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          บันทึก Logs
+          <span data-i18n="nav.logs">บันทึก Logs</span>
         </span>
       </button>
       <button class="nav-item" data-tab="tab-monitor">
         <span class="nav-left">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          Core Monitor
+          <span data-i18n="nav.monitor">Core Monitor</span>
         </span>
         <span class="nav-badge" id="tab-monitor-badge" style="display:none;background:var(--warn);color:#000">0</span>
       </button>
@@ -527,8 +527,11 @@
       <div class="mini-row"><span><span class="dot-live dot-bad" id="dot-gw"></span>Gateway</span><b id="st-gw">...</b></div>
       <div class="mini-row"><span><span class="dot-live dot-bad" id="dot-pub"></span>Funnel / OAuth</span><b id="st-pub">...</b></div>
     </div>
-    <button id="btn-start-all" class="success" style="width:100%">🚀 เริ่มระบบทั้งหมด</button>
-    <button id="theme" style="width:100%">🌓 สลับธีม (สว่าง/มืด)</button>
+    <button id="btn-start-all" class="success" style="width:100%" data-i18n="btn.startAll">🚀 เริ่มระบบทั้งหมด</button>
+    <div style="display:flex;gap:6px">
+      <button id="theme" style="flex:1" data-i18n="btn.theme">🌓 สลับธีม</button>
+      <button id="lang-toggle" style="flex:1">🌐 ไทย / EN</button>
+    </div>
   </div>
 </aside>
 
@@ -541,7 +544,7 @@
         <span>Upstream</span>
         <input type="text" id="upstream-input" placeholder="http://127.0.0.1:18790/mcp">
         <button id="btn-detect-upstream" class="btn-xs" title="สแกนหาพอร์ต WinHelm ที่กำลังรันอยู่">🔍 Auto</button>
-        <button id="btn-save-upstream" class="btn-xs primary" title="บันทึกและ Restart Gateway">💾 บันทึก</button>
+        <button id="btn-save-upstream" class="btn-xs primary" title="บันทึกและ Restart Gateway" data-i18n="btn.save">💾 บันทึก</button>
       </div>
       <span id="upstream-status" class="sub"></span>
     </div>
@@ -554,23 +557,23 @@
         <div>
           <div class="panel">
             <div class="panel-head">
-              <div class="panel-title">🔑 ข้อมูลเชื่อมต่อและ Token</div>
+              <div class="panel-title" data-i18n="setup.connTitle">🔑 ข้อมูลเชื่อมต่อและ Token</div>
               <div style="display:flex;gap:6px">
-                <button id="act-init" class="btn-xs">➕ สร้าง Client</button>
-                <button id="act-invite" class="btn-xs primary">🎫 สร้าง Invite ด่วน</button>
+                <button id="act-init" class="btn-xs" data-i18n="setup.createClient">➕ สร้าง Client</button>
+                <button id="act-invite" class="btn-xs primary" data-i18n="setup.quickInvite">🎫 สร้าง Invite ด่วน</button>
               </div>
             </div>
             <div class="kv-list" id="setupFields"></div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)">
-              <button id="act-release-stale" class="btn-xs">🧹 ปลดการจองที่ค้าง</button>
-              <button id="act-refresh-setup" class="btn-xs">🔄 ตรวจสถานะใหม่</button>
+              <button id="act-release-stale" class="btn-xs" data-i18n="setup.releaseStale">🧹 ปลดการจองที่ค้าง</button>
+              <button id="act-refresh-setup" class="btn-xs" data-i18n="setup.recheck">🔄 ตรวจสถานะใหม่</button>
             </div>
           </div>
 
           <div class="panel">
             <div class="panel-head">
-              <div class="panel-title">🧩 Clients ในระบบ</div>
-              <span class="sub">เลือก Client หลักสำหรับ OAuth</span>
+              <div class="panel-title" data-i18n="setup.clientsTitle">🧩 Clients ในระบบ</div>
+              <span class="sub" data-i18n="setup.clientsSub">เลือก Client หลักสำหรับ OAuth</span>
             </div>
             <div class="kv-list" id="clientList"></div>
           </div>
@@ -579,7 +582,7 @@
         <div>
           <div class="panel">
             <div class="panel-head">
-              <div class="panel-title">📡 สถานะความพร้อมระบบ</div>
+              <div class="panel-title" data-i18n="setup.healthTitle">📡 สถานะความพร้อมระบบ</div>
               <span class="badge badge-info" id="ready-badge">กำลังตรวจ…</span>
             </div>
             <ul class="chk-list" id="setupChecks"></ul>
@@ -587,7 +590,7 @@
 
           <div class="panel">
             <div class="panel-head">
-              <div class="panel-title">🚀 วิธีเชื่อมต่อกับ Gemini</div>
+              <div class="panel-title" data-i18n="setup.guideTitle">🚀 วิธีเชื่อมต่อกับ Gemini</div>
             </div>
             <ul class="stepper">
               <li><span class="step-num">1</span><span>เปิด Gemini → Settings → <b>Connected Apps</b> → <b>Add custom app</b></span></li>
@@ -604,29 +607,29 @@
     <!-- TAB 2: Invites Manager -->
     <section class="tab-pane" id="tab-invites">
       <div class="cards">
-        <div class="card"><b id="inv-total">0</b><span>Invites ทั้งหมด</span></div>
-        <div class="card"><b id="inv-active" style="color:var(--accent)">0</b><span>เชื่อมต่อแล้ว (Active Grants)</span></div>
-        <div class="card"><b id="inv-usable" style="color:var(--ok)">0</b><span>พร้อมใช้งาน (Usable)</span></div>
-        <div class="card"><b id="inv-reserved" style="color:var(--warn)">0</b><span>ติดจองชั่วคราว</span></div>
+        <div class="card"><b id="inv-total">0</b><span data-i18n="inv.total">Invites ทั้งหมด</span></div>
+        <div class="card"><b id="inv-active" style="color:var(--accent)">0</b><span data-i18n="inv.active">เชื่อมต่อแล้ว (Active Grants)</span></div>
+        <div class="card"><b id="inv-usable" style="color:var(--ok)">0</b><span data-i18n="inv.usable">พร้อมใช้งาน (Usable)</span></div>
+        <div class="card"><b id="inv-reserved" style="color:var(--warn)">0</b><span data-i18n="inv.reserved">ติดจองชั่วคราว</span></div>
       </div>
 
       <div class="bar">
-        <button id="btn-create-inv" class="primary">➕ สร้าง Invite ใหม่</button>
-        <button id="btn-release-all-stale">🧹 ปลดการจองทั้งหมดที่ค้าง</button>
-        <button id="btn-refresh-inv">🔄 รีเฟรชตาราง</button>
+        <button id="btn-create-inv" class="primary" data-i18n="inv.create">➕ สร้าง Invite ใหม่</button>
+        <button id="btn-release-all-stale" data-i18n="inv.releaseAll">🧹 ปลดการจองทั้งหมดที่ค้าง</button>
+        <button id="btn-refresh-inv" data-i18n="inv.refresh">🔄 รีเฟรชตาราง</button>
       </div>
 
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>ชื่อ Alias</th>
-              <th>โควตา</th>
-              <th>ติดจอง</th>
-              <th>สถานะ</th>
+              <th data-i18n="inv.colAlias">ชื่อ Alias</th>
+              <th data-i18n="inv.colQuota">โควตา</th>
+              <th data-i18n="inv.colReserved">ติดจอง</th>
+              <th data-i18n="inv.colStatus">สถานะ</th>
               <th>DPAPI Key</th>
-              <th>สร้างเมื่อ</th>
-              <th style="text-align:right">จัดการ</th>
+              <th data-i18n="inv.colCreated">สร้างเมื่อ</th>
+              <th style="text-align:right" data-i18n="inv.colAction">จัดการ</th>
             </tr>
           </thead>
           <tbody id="inv-list">
@@ -660,9 +663,9 @@
             </span>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button id="preset-power" class="btn-xs success">🚀 Power (Auto ทั้งหมด)</button>
-            <button id="preset-balanced" class="btn-xs" style="background:#d97706;border-color:#d97706;color:#fff">⚖️ Balanced (Ask อันตราย)</button>
-            <button id="preset-safe" class="btn-xs" style="background:#475569;border-color:#475569;color:#fff">🛡️ Safe (Read-only)</button>
+            <button id="preset-power" class="btn-xs success" data-i18n="tools.power">🚀 Power (Auto ทั้งหมด)</button>
+            <button id="preset-balanced" class="btn-xs" style="background:#d97706;border-color:#d97706;color:#fff" data-i18n="tools.balanced">⚖️ Balanced (Ask อันตราย)</button>
+            <button id="preset-safe" class="btn-xs" style="background:#475569;border-color:#475569;color:#fff" data-i18n="tools.safe">🛡️ Safe (Read-only)</button>
           </div>
         </div>
       </div>
@@ -671,14 +674,14 @@
 
       <div class="panel" style="padding:14px 18px">
         <div class="panel-head" style="margin-bottom:10px;padding-bottom:8px">
-          <div class="panel-title">📂 โฟลเดอร์ที่อนุญาตให้ Core เข้าถึง (Approved Folders)</div>
-          <button id="btn-add-folder" class="btn-xs">➕ เพิ่มโฟลเดอร์ / ไดรฟ์</button>
+          <div class="panel-title" data-i18n="tools.foldersTitle">📂 โฟลเดอร์ที่อนุญาตให้ Core เข้าถึง (Approved Folders)</div>
+          <button id="btn-add-folder" class="btn-xs" data-i18n="tools.addFolder">➕ เพิ่มโฟลเดอร์ / ไดรฟ์</button>
         </div>
         <div id="folders-list" style="display:flex;gap:8px;flex-wrap:wrap"></div>
       </div>
 
       <div class="bar">
-        <input type="search" class="search-box" id="q" placeholder="🔍 ค้นหาชื่อ tool หรือคำอธิบาย…">
+        <input type="search" class="search-box" id="q" placeholder="🔍 ค้นหาชื่อ tool หรือคำอธิบาย…" data-i18n-placeholder="tools.search">
         <button id="cat-all" class="ghost on">ทั้งหมด (56)</button>
         <button id="cat-terminal" class="ghost">Terminal (6)</button>
         <button id="cat-filesystem" class="ghost">Filesystem (15)</button>
@@ -686,15 +689,15 @@
         <button id="cat-desktop" class="ghost">Desktop (5)</button>
         <button id="cat-integrity" class="ghost">Integrity &amp; Git (15)</button>
         <button id="cat-network" class="ghost">Network &amp; อื่นๆ (4)</button>
-        <button id="refresh" class="btn-xs">🔄 รีเฟรช</button>
+        <button id="refresh" class="btn-xs" data-i18n="btn.refresh">🔄 รีเฟรช</button>
       </div>
 
       <div class="bar" style="justify-content:space-between">
         <span class="sub" id="bulkcount">แสดง 56 tools</span>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button id="bulk-auto" class="btn-xs">🟢 Auto ทั้งหมดที่กรอง</button>
-          <button id="bulk-ask" class="btn-xs">🟡 Ask ทั้งหมดที่กรอง</button>
-          <button id="bulk-off" class="btn-xs">🔴 Off ทั้งหมดที่กรอง</button>
+          <button id="bulk-auto" class="btn-xs" data-i18n="tools.bulkAuto">🟢 Auto ทั้งหมดที่กรอง</button>
+          <button id="bulk-ask" class="btn-xs" data-i18n="tools.bulkAsk">🟡 Ask ทั้งหมดที่กรอง</button>
+          <button id="bulk-off" class="btn-xs" data-i18n="tools.bulkOff">🔴 Off ทั้งหมดที่กรอง</button>
         </div>
       </div>
 
@@ -712,10 +715,10 @@
 
       <div class="panel">
         <div class="panel-head">
-          <div class="panel-title">🖥️ ควบคุมโปรเซสและบริการ (Process &amp; Service Control)</div>
+          <div class="panel-title" data-i18n="svc.title">🖥️ ควบคุมโปรเซสและบริการ (Process &amp; Service Control)</div>
           <div style="display:flex;gap:8px">
             <button id="svc-start-all" class="btn-xs success">🚀 Start All</button>
-            <button id="svc-refresh" class="btn-xs">🔄 รีเฟรชสถานะ</button>
+            <button id="svc-refresh" class="btn-xs" data-i18n="svc.refresh">🔄 รีเฟรชสถานะ</button>
           </div>
         </div>
         <div class="kv-list" id="svc-list"></div>
@@ -726,18 +729,18 @@
     <section class="tab-pane" id="tab-logs">
       <div class="panel" style="margin-bottom:0">
         <div class="panel-head">
-          <div class="panel-title">📜 บันทึกการทำงานล่าสุด (Live Logs)</div>
+          <div class="panel-title" data-i18n="logs.title">📜 บันทึกการทำงานล่าสุด (Live Logs)</div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <button id="log-tab-core" class="btn-xs primary">WinHelm Core Log</button>
             <button id="log-tab-gw" class="btn-xs">Gateway Log</button>
-            <button id="log-order" class="btn-xs" title="สลับลำดับการแสดงบรรทัดล่าสุด">⇅ ล่าสุดอยู่ล่าง</button>
+            <button id="log-order" class="btn-xs" title="สลับลำดับการแสดงบรรทัดล่าสุด" data-i18n="logs.order">⇅ ล่าสุดอยู่ล่าง</button>
             <label style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer;margin-left:4px">
-              <input type="checkbox" id="log-follow" checked> เลื่อนตามล่าสุด
+              <input type="checkbox" id="log-follow" checked> <span data-i18n="logs.follow">เลื่อนตามล่าสุด</span>
             </label>
             <label style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer;margin-left:4px">
-              <input type="checkbox" id="log-auto"> รีเฟรชอัตโนมัติ (3วิ)
+              <input type="checkbox" id="log-auto"> <span data-i18n="logs.auto">รีเฟรชอัตโนมัติ (3วิ)</span>
             </label>
-            <button id="log-refresh" class="btn-xs">🔄 โหลดใหม่</button>
+            <button id="log-refresh" class="btn-xs" data-i18n="logs.reload">🔄 โหลดใหม่</button>
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:14px">
@@ -765,15 +768,15 @@
       <div class="grid-2">
         <div class="panel">
           <div class="panel-head">
-            <div class="panel-title">🛡️ คำขออนุมัติคำสั่ง (Approval Queue)</div>
-            <button id="mon-refresh" class="btn-xs">🔄 รีเฟรช</button>
+            <div class="panel-title" data-i18n="mon.queueTitle">🛡️ คำขออนุมัติคำสั่ง (Approval Queue)</div>
+            <button id="mon-refresh" class="btn-xs" data-i18n="btn.refresh">🔄 รีเฟรช</button>
           </div>
           <div class="kv-list" id="jobs-list"><div class="sub">กำลังโหลด...</div></div>
         </div>
 
         <div class="panel">
           <div class="panel-head">
-            <div class="panel-title">💾 พื้นที่ดิสก์ (Drives)</div>
+            <div class="panel-title" data-i18n="mon.drivesTitle">💾 พื้นที่ดิสก์ (Drives)</div>
             <span class="sub" id="mon-os">-</span>
           </div>
           <div id="drives-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:8px;max-height:210px;overflow-y:auto;padding-right:2px"></div>
@@ -782,24 +785,24 @@
 
       <div class="panel">
         <div class="panel-head">
-          <div class="panel-title">📡 กิจกรรมล่าสุดของ WinHelm Core (Activity Logs)</div>
+          <div class="panel-title" data-i18n="mon.logsTitle">📡 กิจกรรมล่าสุดของ WinHelm Core (Activity Logs)</div>
           <div style="display:flex;gap:8px;align-items:center">
             <label style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer">
-              <input type="checkbox" id="mon-auto"> รีเฟรชอัตโนมัติ (3วิ)
+              <input type="checkbox" id="mon-auto"> <span data-i18n="logs.auto">รีเฟรชอัตโนมัติ (3วิ)</span>
             </label>
-            <button id="mon-clear-logs" class="btn-xs danger-outline">🧹 ล้าง Logs</button>
+            <button id="mon-clear-logs" class="btn-xs danger-outline" data-i18n="mon.clearLogs">🧹 ล้าง Logs</button>
           </div>
         </div>
         <div class="table-wrap" style="max-height:360px;overflow:auto">
           <table>
             <thead>
               <tr>
-                <th>เวลา</th>
-                <th>ประเภท</th>
-                <th>รายการ</th>
-                <th>รายละเอียด</th>
-                <th>เวลาทำงาน</th>
-                <th>สถานะ</th>
+                <th data-i18n="mon.colTime">เวลา</th>
+                <th data-i18n="mon.colType">ประเภท</th>
+                <th data-i18n="mon.colItem">รายการ</th>
+                <th data-i18n="mon.colDetail">รายละเอียด</th>
+                <th data-i18n="mon.colDuration">เวลาทำงาน</th>
+                <th data-i18n="mon.colStatus">สถานะ</th>
               </tr>
             </thead>
             <tbody id="core-logs-tbody">
@@ -814,24 +817,24 @@
 
 <!-- Sticky Save Bar (Tools Tab) -->
 <footer class="save-bar" id="footer-tools">
-  <div class="sub" id="legend">บันทึกลง <code>winhelm.local.json</code> (Schema v2) และซิงค์ Gateway อัตโนมัติ</div>
+  <div class="sub" id="legend" data-i18n="tools.footerLegend">บันทึกลง winhelm.local.json (Schema v2) และซิงค์ Gateway อัตโนมัติ</div>
   <div style="display:flex;gap:10px">
     <button id="restart">Restart Gateway</button>
-    <button class="primary" id="save">💾 บันทึก Policy (Schema v2)</button>
+    <button class="primary" id="save" data-i18n="tools.savePolicy">💾 บันทึก Policy (Schema v2)</button>
   </div>
 </footer>
 
 <!-- Floating Approval Popup -->
 <div id="approval-popup" style="display:none;position:fixed;top:72px;right:24px;width:380px;max-width:calc(100vw - 32px);background:var(--card);border:2px solid var(--warn);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow-lg);z-index:180;animation:slideIn 0.18s ease">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-    <span style="font-weight:750;font-size:14px;color:var(--warn);display:flex;align-items:center;gap:6px">🛡️ ขออนุมัติรันคำสั่ง (Ask)</span>
+    <span style="font-weight:750;font-size:14px;color:var(--warn);display:flex;align-items:center;gap:6px" data-i18n="ap.title">🛡️ ขออนุมัติรันคำสั่ง (Ask)</span>
     <span class="badge badge-warn" id="ap-count">1 คิว</span>
   </div>
   <div style="font-size:13px;margin-bottom:4px">Tool: <code id="ap-tool">-</code></div>
   <div class="sub" id="ap-summary" style="margin-bottom:14px;word-break:break-word"></div>
   <div style="display:flex;gap:8px;justify-content:flex-end">
-    <button class="btn-xs danger-outline" id="ap-deny">✕ ปฏิเสธ</button>
-    <button class="btn-xs success" id="ap-approve">✔ อนุมัติทันที</button>
+    <button class="btn-xs danger-outline" id="ap-deny" data-i18n="ap.deny">✕ ปฏิเสธ</button>
+    <button class="btn-xs success" id="ap-approve" data-i18n="ap.approve">✔ อนุมัติทันที</button>
   </div>
 </div>
 
@@ -1892,20 +1895,121 @@ el('mon-auto').onchange = () => {
   }
 };
 
-// Navigation
+// Navigation & Language (TH / EN)
 const TITLES = {
-  'tab-setup': '⚙️ ตั้งค่า & เชื่อมต่อระบบ',
-  'tab-invites': '🎫 จัดการ Invites',
-  'tab-tools': '🛠️ นโยบาย Tools (Schema v2)',
-  'tab-services': '🖥️ จัดการ Services',
-  'tab-logs': '📜 บันทึก Logs (Live)',
-  'tab-monitor': '📊 WinHelm Core Monitor & Approvals'
+  th: {
+    'tab-setup': '⚙️ ตั้งค่า & เชื่อมต่อระบบ',
+    'tab-invites': '🎫 จัดการ Invites',
+    'tab-tools': '🛠️ นโยบาย Tools (Schema v2)',
+    'tab-services': '🖥️ จัดการ Services',
+    'tab-logs': '📜 บันทึก Logs (Live)',
+    'tab-monitor': '📊 WinHelm Core Monitor & Approvals'
+  },
+  en: {
+    'tab-setup': '⚙️ Setup & Connection',
+    'tab-invites': '🎫 Invites Manager',
+    'tab-tools': '🛠️ Tools Policy (Schema v2)',
+    'tab-services': '🖥️ Services Control',
+    'tab-logs': '📜 Live Logs',
+    'tab-monitor': '📊 WinHelm Core Monitor & Approvals'
+  }
 };
 
+const EN_TEXT = {
+  'nav.setup': 'Setup & Connect',
+  'nav.invites': 'Invites',
+  'nav.tools': 'Tools Policy',
+  'nav.services': 'Services',
+  'nav.logs': 'Live Logs',
+  'nav.monitor': 'Core Monitor',
+  'btn.startAll': '🚀 Start All Services',
+  'btn.theme': '🌓 Theme',
+  'btn.save': '💾 Save',
+  'btn.refresh': '🔄 Refresh',
+  'setup.connTitle': '🔑 Connection & Tokens',
+  'setup.createClient': '➕ New Client',
+  'setup.quickInvite': '🎫 Quick Invite',
+  'setup.releaseStale': '🧹 Release Stale',
+  'setup.recheck': '🔄 Re-check Status',
+  'setup.clientsTitle': '🧩 OAuth Clients',
+  'setup.clientsSub': 'Select primary client for OAuth',
+  'setup.healthTitle': '📡 System Readiness',
+  'setup.guideTitle': '🚀 How to Connect Gemini',
+  'inv.total': 'Total Invites',
+  'inv.active': 'Active Grants',
+  'inv.usable': 'Usable',
+  'inv.reserved': 'Reserved',
+  'inv.create': '➕ New Invite',
+  'inv.releaseAll': '🧹 Release All Stale',
+  'inv.refresh': '🔄 Refresh Table',
+  'inv.colAlias': 'Alias',
+  'inv.colQuota': 'Quota',
+  'inv.colReserved': 'Reserved',
+  'inv.colStatus': 'Status',
+  'inv.colCreated': 'Created',
+  'inv.colAction': 'Actions',
+  'tools.power': '🚀 Power (All Auto)',
+  'tools.balanced': '⚖️ Balanced (Ask Risky)',
+  'tools.safe': '🛡️ Safe (Read-only)',
+  'tools.foldersTitle': '📂 Approved Folders',
+  'tools.addFolder': '➕ Add Folder / Drive',
+  'tools.search': '🔍 Search tool name or description…',
+  'tools.bulkAuto': '🟢 Auto Filtered',
+  'tools.bulkAsk': '🟡 Ask Filtered',
+  'tools.bulkOff': '🔴 Off Filtered',
+  'tools.footerLegend': 'Saves to winhelm.local.json (Schema v2) and syncs Gateway automatically',
+  'tools.savePolicy': '💾 Save Policy (Schema v2)',
+  'svc.title': '🖥️ Process & Service Control',
+  'svc.refresh': '🔄 Refresh Status',
+  'logs.title': '📜 Live Logs',
+  'logs.order': '⇅ Newest Bottom',
+  'logs.follow': 'Auto-scroll',
+  'logs.auto': 'Auto-refresh (3s)',
+  'logs.reload': '🔄 Reload',
+  'mon.queueTitle': '🛡️ Approval Queue',
+  'mon.drivesTitle': '💾 Disk Drives',
+  'mon.logsTitle': '📡 WinHelm Core Activity Logs',
+  'mon.clearLogs': '🧹 Clear Logs',
+  'mon.colTime': 'Time',
+  'mon.colType': 'Type',
+  'mon.colItem': 'Item',
+  'mon.colDetail': 'Detail',
+  'mon.colDuration': 'Duration',
+  'mon.colStatus': 'Status',
+  'ap.title': '🛡️ Command Approval Request (Ask)',
+  'ap.deny': '✕ Deny',
+  'ap.approve': '✔ Approve Now'
+};
+
+let LANG = localStorage.getItem('winhelm_lang') === 'en' ? 'en' : 'th';
+let activeTabId = 'tab-setup';
+
+function applyLang(lang) {
+  LANG = lang === 'en' ? 'en' : 'th';
+  localStorage.setItem('winhelm_lang', LANG);
+  document.documentElement.lang = LANG;
+  document.querySelectorAll('[data-i18n]').forEach((node) => {
+    const key = node.dataset.i18n;
+    if (node.dataset.i18nTh === undefined) node.dataset.i18nTh = node.textContent;
+    node.textContent = LANG === 'en' ? (EN_TEXT[key] ?? node.dataset.i18nTh) : node.dataset.i18nTh;
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach((node) => {
+    const key = node.dataset.i18nPlaceholder;
+    if (node.dataset.i18nPhTh === undefined) node.dataset.i18nPhTh = node.placeholder;
+    node.placeholder = LANG === 'en' ? (EN_TEXT[key] ?? node.dataset.i18nPhTh) : node.dataset.i18nPhTh;
+  });
+  el('lang-toggle').textContent = LANG === 'en' ? '🌐 EN (ไทย)' : '🌐 ไทย (EN)';
+  el('topbar-title').textContent = (TITLES[LANG] && TITLES[LANG][activeTabId]) || 'WinHelm Console';
+}
+
+el('lang-toggle').onclick = () => applyLang(LANG === 'th' ? 'en' : 'th');
+applyLang(LANG);
+
 function switchTab(tabId) {
+  activeTabId = tabId;
   document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === tabId));
-  el('topbar-title').textContent = TITLES[tabId] || 'WinHelm Console';
+  el('topbar-title').textContent = (TITLES[LANG] && TITLES[LANG][tabId]) || 'WinHelm Console';
   el('footer-tools').style.display = (tabId === 'tab-tools') ? 'flex' : 'none';
   if (tabId !== 'tab-logs' && logTimer) {
     clearInterval(logTimer); logTimer = null;
