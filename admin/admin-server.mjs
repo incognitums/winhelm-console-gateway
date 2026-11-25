@@ -63,7 +63,7 @@ function getGlobalNodeModules() {
   return cachedGlobalNodeModules;
 }
 
-async function alwaysAllowToolPolicy(toolName) {
+async function alwaysAllowToolPolicy(toolName, waitJobId = "") {
   if (!toolName || !/^[A-Za-z0-9._-]+$/.test(toolName)) return false;
   const existing = (await loadWinHelmConfig()) || { schemaVersion: 2, toolPolicy: {} };
   const isTerminal = toolName.startsWith("terminal_") || toolName === "command_run";
@@ -75,10 +75,28 @@ async function alwaysAllowToolPolicy(toolName) {
   }
   existing.profilePreset = "custom";
   await saveWinHelmConfig(existing);
-  // Reload WinHelm Core after 2s so the just-approved job finishes before Core restarts with the new policy.
-  setTimeout(() => {
-    stopCoreProcess().then(() => startCoreProcess()).catch(() => {});
-  }, 2000);
+
+  // Wait until the just-approved job finishes (up to 15s) before restarting Core to reload policy.
+  (async () => {
+    const jobsFile = path.join(os.homedir(), ".winhelm", "approval-jobs.json");
+    const deadline = Date.now() + 15000;
+    while (waitJobId && Date.now() < deadline) {
+      await new Promise((r) => setTimeout(r, 1000));
+      try {
+        if (existsSync(jobsFile)) {
+          const jData = JSON.parse(readFileSync(jobsFile, "utf8"));
+          const job = (jData.jobs || []).find((j) => j.id === waitJobId);
+          if (!job || ["completed", "denied", "failed", "expired", "cancelled"].includes(job.state)) {
+            await new Promise((r) => setTimeout(r, 1000));
+            break;
+          }
+        }
+      } catch {}
+    }
+    if (!waitJobId) await new Promise((r) => setTimeout(r, 4000));
+    await stopCoreProcess().catch(() => {});
+    await startCoreProcess().catch(() => {});
+  })();
   return true;
 }
 
@@ -1246,7 +1264,7 @@ async function handleApi(req, res, url) {
       }
       let policyUpdated = false;
       if (decision === "approve" && alwaysApprove && toolName) {
-        policyUpdated = await alwaysAllowToolPolicy(toolName).catch(() => false);
+        policyUpdated = await alwaysAllowToolPolicy(toolName, jobId).catch(() => false);
       }
       return json(res, 200, { ok: true, jobId, decision, state: outcome.state, policyUpdated });
     }

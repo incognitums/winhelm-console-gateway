@@ -743,9 +743,25 @@ function Update-Ui {
         $script:PendingPublicStart = $null
         Invoke-Action (Start-Public)
     }
-    if ($script:PendingCoreRestart -and ((Get-Date) - $script:PendingCoreRestart).TotalSeconds -ge 2) {
-        $script:PendingCoreRestart = $null
-        Invoke-Action ((Stop-Core) + "`n" + (Start-Core))
+    if ($script:PendingCoreRestartAt) {
+        $shouldRestart = (((Get-Date) - $script:PendingCoreRestartAt).TotalSeconds -ge 15)
+        if (-not $shouldRestart -and $script:PendingCoreRestartJobId) {
+            try {
+                $jf = Join-Path $env:USERPROFILE '.winhelm\approval-jobs.json'
+                if (Test-Path -LiteralPath $jf) {
+                    $jd = Get-Content -LiteralPath $jf -Raw -ErrorAction Stop | ConvertFrom-Json
+                    $jb = $jd.jobs | Where-Object { $_.id -eq $script:PendingCoreRestartJobId } | Select-Object -First 1
+                    if (-not $jb -or $jb.state -in @('completed', 'denied', 'failed', 'expired', 'cancelled')) {
+                        if (((Get-Date) - $script:PendingCoreRestartAt).TotalSeconds -ge 2) { $shouldRestart = $true }
+                    }
+                }
+            } catch { }
+        }
+        if ($shouldRestart) {
+            $script:PendingCoreRestartAt = $null
+            $script:PendingCoreRestartJobId = $null
+            Invoke-Action ((Stop-Core) + "`n" + (Start-Core))
+        }
     }
 
     # Check pending Core approval jobs and surface Tray Dialog or Balloon Notification
@@ -1068,7 +1084,10 @@ function Show-TrayApprovalDialog {
         $polOk = $false
         if ($outcome.ok) {
             $polOk = Set-TrayToolAlwaysAuto -ToolName $tn
-            if ($polOk) { $script:PendingCoreRestart = Get-Date }
+            if ($polOk) {
+                $script:PendingCoreRestartJobId = $Job.id
+                $script:PendingCoreRestartAt = Get-Date
+            }
         }
         $msg = if ($outcome.ok -and $polOk) { "Always Approved: $tn (reloading Core policy)" } elseif ($outcome.ok) { "Approved once (policy file not found)" } else { "Approve failed: $($outcome.message)" }
         $script:Notify.ShowBalloonTip(3500, 'WinHelm', $msg, 'Info')
