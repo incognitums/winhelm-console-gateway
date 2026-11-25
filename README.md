@@ -66,13 +66,56 @@ Built with **100% Node.js Standard Library** (zero external npm dependencies), c
 ## 📦 Installation on a New Machine
 
 ### 1. Prerequisites
-- **Windows 10 / 11** with **Microsoft Edge**
-- **Node.js v20+**
-- **Tailscale** (installed, signed in, and Funnel enabled for port `18788`, e.g. `tailscale funnel --bg 18788`)
-- **WinHelm Core** (`npx -y winhelm-mcp`, `npm i -g winhelm-mcp`, or a sibling `../winhelm-mcp` folder)
+- **Windows 10 / 11** with **Microsoft Edge** (built-in)
+- **Node.js v20+** — download from [nodejs.org](https://nodejs.org/) or install via `winget install OpenJS.NodeJS.LTS`
+- **Tailscale** (signed in with **MagicDNS**, **HTTPS**, and **Funnel** enabled)
+- **WinHelm MCP Core** (`winhelm-mcp`)
 
-### 2. First-Run Setup (`setup.cmd`)
-1. Clone or copy `winhelm-console-gateway` to your machine.
+### 2. Install & Configure Tailscale (Required for Public HTTPS MCP URL)
+AI platforms (Gemini, Claude, ChatGPT) require a public `https://` endpoint to reach your local MCP Gateway (`127.0.0.1:18788`).
+1. **Install Tailscale on Windows:**
+   - Download from [tailscale.com/download/windows](https://tailscale.com/download/windows) or run:
+     ```powershell
+     winget install Tailscale.Tailscale
+     ```
+   - Open Tailscale from the System Tray and sign in (or run `tailscale up`).
+2. **Enable MagicDNS & HTTPS in Tailscale Admin Console:**
+   - Go to [Tailscale Admin Console → DNS](https://login.tailscale.com/admin/dns).
+   - Enable **MagicDNS** and **HTTPS Certificates**.
+3. **Enable Tailscale Funnel for Port `18788`:**
+   - Run once in PowerShell (if Funnel is not enabled on your tailnet yet, Tailscale will print an activation URL — open it to allow Funnel):
+     ```powershell
+     tailscale funnel --bg 18788
+     ```
+   - Verify with:
+     ```powershell
+     tailscale funnel status
+     ```
+   - *(You can also toggle Funnel ON/OFF later inside WinHelm Console → **Services**.)*
+
+### 3. Install WinHelm MCP Core (`winhelm-mcp`)
+`setup.cmd` and `start-core.ps1` automatically detect WinHelm Core in this priority order — choose **one** of the options below:
+- **Option A — Clone & build alongside the gateway (Recommended for local dev):**
+  ```powershell
+  git clone https://github.com/incognitums/winhelm-mcp.git
+  cd winhelm-mcp
+  npm install
+  npm run build
+  ```
+  Place the `winhelm-mcp` folder next to `winhelm-console-gateway` (so `..\winhelm-mcp\dist\index.js` exists).
+- **Option B — Install globally via npm:**
+  ```powershell
+  npm install -g winhelm-mcp
+  ```
+- **Option C — Zero-install via `npx`:**
+  - If neither Option A nor B is present, the gateway falls back to `npx -y winhelm-mcp` automatically when Node.js is installed.
+
+### 4. First-Run Setup (`setup.cmd`)
+1. Clone this repository next to `winhelm-mcp` (or anywhere on your machine):
+   ```powershell
+   git clone https://github.com/incognitums/winhelm-console-gateway.git
+   cd winhelm-console-gateway
+   ```
 2. Double-click **`setup.cmd`** (verifies Node.js, Edge, Tailscale, and WinHelm Core; initializes `config.json` from `config.example.json` with your Tailscale domain; and creates `WinHelm Tray.lnk`).
 3. Double-click **`WinHelm Tray.lnk`** → right-click the tray icon → **Open Control Console** (`http://127.0.0.1:18789`).
 4. Click **`🚀 Start All Services`** at the bottom-left (and enable **Tailscale Funnel** in **Services** if not active):
