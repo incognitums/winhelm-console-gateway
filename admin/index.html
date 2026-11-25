@@ -1386,13 +1386,13 @@ function renderFolders() {
   const wrap = el('folders-list');
   if (!wrap) return;
   if (!schemaFolders.length) {
-    wrap.innerHTML = '<div class="sub">ยังไม่มีโฟลเดอร์ที่กำหนด (ต้องมีอย่างน้อย 1 โฟลเดอร์ใน Schema v2)</div>';
+    wrap.innerHTML = `<div class="sub">${t('ยังไม่มีโฟลเดอร์ที่กำหนด (ต้องมีอย่างน้อย 1 โฟลเดอร์ใน Schema v2)', 'No folders configured (at least 1 folder required in Schema v2)')}</div>`;
     return;
   }
   wrap.innerHTML = schemaFolders.map((f, idx) => `
     <span class="preset-pill" style="gap:8px;padding:6px 10px">
-      <code>${f.path}</code>
-      <button class="btn-xs" data-fld-toggle="${idx}" title="คลิกเพื่อสลับสิทธิ์ read / readwrite">${f.permission === 'readwrite' ? '✏️ readwrite' : '👁️ read'}</button>
+      <code>${esc(f.path)}</code>
+      <button class="btn-xs" data-fld-toggle="${idx}" title="${t('คลิกเพื่อสลับสิทธิ์ read / readwrite', 'Click to toggle read / readwrite')}">${f.permission === 'readwrite' ? '✏️ readwrite' : '👁️ read'}</button>
       <button class="btn-xs danger-outline" data-fld-del="${idx}" style="padding:2px 6px">✕</button>
     </span>`).join('');
 
@@ -1466,7 +1466,7 @@ function visibleSchemaTools() {
   if (!schemaData) return [];
   const q = (el('q').value || '').trim().toLowerCase();
   return schemaData.tools.filter((t) => {
-    if (q && !t.name.toLowerCase().includes(q) && !(t.desc || '').toLowerCase().includes(q)) return false;
+    if (q && !t.name.toLowerCase().includes(q) && !(t.desc || '').toLowerCase().includes(q) && !(t.descEn || '').toLowerCase().includes(q)) return false;
     if (schemaCategory === 'all') return true;
     if (schemaCategory === 'terminal') return t.category === 'Terminal';
     if (schemaCategory === 'filesystem') return t.category === 'Filesystem';
@@ -1499,7 +1499,7 @@ function renderSchemaList() {
           ${tItem.isDangerous ? `<span class="tag-danger">${t('อันตราย', 'Dangerous')}</span>` : ''}
           ${isTrustedActive ? `<button type="button" class="tag-trusted" data-untrust="${esc(tItem.name)}" title="${t('กำลังรันอัตโนมัติในโหมด Trusted — คลิกเพื่อปลดกลับเป็น Ask', 'Running auto under Trusted mode — click to revert to Ask')}">${t('⚡ Trusted ×', '⚡ Trusted ×')}</button>` : ''}
         </div>
-        <div class="tool-desc">${esc(tItem.desc || '')}</div>
+        <div class="tool-desc">${esc(LANG === 'en' ? (tItem.descEn || tItem.desc || '') : (tItem.desc || ''))}</div>
       </div>
       <div class="radios">
         <label class="${cls('auto').trim()}"><input type="radio" name="sch_${esc(tItem.name)}" value="auto"${sel('auto')}>🟢 Auto</label>
@@ -2102,7 +2102,7 @@ function applyLang(lang, rerender = false) {
   if (rerender) {
     if (activeTabId === 'tab-setup') loadSetup();
     else if (activeTabId === 'tab-invites') loadInvites();
-    else if (activeTabId === 'tab-tools') { renderSchemaCards(); renderSchemaList(); }
+    else if (activeTabId === 'tab-tools') { renderFolders(); renderSchemaCards(); renderSchemaList(); }
     else if (activeTabId === 'tab-services') loadServices();
     else if (activeTabId === 'tab-monitor') loadCoreMonitor();
   }
