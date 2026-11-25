@@ -777,7 +777,7 @@
             <div class="panel-title" data-i18n="mon.queueTitle">🛡️ คำขออนุมัติคำสั่ง (Approval Queue)</div>
             <button id="mon-refresh" class="btn-xs" data-i18n="btn.refresh">🔄 รีเฟรช</button>
           </div>
-          <div class="kv-list" id="jobs-list"><div class="sub">กำลังโหลด...</div></div>
+          <div class="kv-list" id="jobs-list" style="max-height:210px;overflow-y:auto;padding-right:4px"><div class="sub">กำลังโหลด...</div></div>
         </div>
 
         <div class="panel">
@@ -1861,7 +1861,7 @@ async function loadCoreMonitor() {
           ${waiting ? `
             <button class="btn-xs success" data-job-id="${esc(j.jobId)}" data-decision="approve">${t('✔ อนุมัติ', '✔ Approve')}</button>
             <button class="btn-xs danger-outline" data-job-id="${esc(j.jobId)}" data-decision="deny">${t('✕ ปฏิเสธ', '✕ Deny')}</button>
-          ` : `<span class="badge ${j.status === 'approved' ? 'badge-ok' : 'badge-bad'}">${esc(j.status)}</span>`}
+          ` : `<span class="badge ${(j.status === 'approved' || j.status === 'completed') ? 'badge-ok' : (j.status === 'expired' ? 'badge-warn' : 'badge-bad')}">${esc(j.status)}</span>`}
         </div>
       </div>`;
     }).join('') : `<div class="sub">${t('ไม่มีคำขอที่รออนุมัติในคิว', 'No pending approval requests')}</div>`;
