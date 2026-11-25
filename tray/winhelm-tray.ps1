@@ -843,79 +843,166 @@ function Invoke-TrayJobDecision {
     }
 }
 
+function Set-DarkTitleBar {
+    param([IntPtr] $Handle)
+    try {
+        if (-not ([System.Management.Automation.PSTypeName]'WinHelmDwm').Type) {
+            Add-Type -TypeDefinition @"
+using System;
+using System.Runtime.InteropServices;
+public static class WinHelmDwm {
+    [DllImport("dwmapi.dll")]
+    public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
+}
+"@
+        }
+        $v = 1
+        [void][WinHelmDwm]::DwmSetWindowAttribute($Handle, 20, [ref]$v, 4)
+        [void][WinHelmDwm]::DwmSetWindowAttribute($Handle, 19, [ref]$v, 4)
+    } catch { }
+}
+
 function Show-TrayApprovalDialog {
     param($Job, [int] $PendingCount = 1)
+    $bgMain   = [System.Drawing.Color]::FromArgb(17, 19, 24)
+    $bgCard   = [System.Drawing.Color]::FromArgb(24, 27, 34)
+    $lineCol  = [System.Drawing.Color]::FromArgb(42, 47, 58)
+    $inkMain  = [System.Drawing.Color]::FromArgb(238, 241, 246)
+    $inkMuted = [System.Drawing.Color]::FromArgb(139, 148, 165)
+
     $form = New-Object System.Windows.Forms.Form
-    $form.Text = "WinHelm Approval Request ($PendingCount pending)"
-    $form.Size = New-Object System.Drawing.Size(470, 245)
+    $form.Text = "WinHelm Approval"
+    $form.ClientSize = New-Object System.Drawing.Size(480, 268)
     $form.StartPosition = 'CenterScreen'
-    $form.FormBorderStyle = 'FixedDialog'
+    $form.FormBorderStyle = 'FixedSingle'
     $form.MaximizeBox = $false
     $form.MinimizeBox = $false
     $form.TopMost = $true
-    $form.BackColor = [System.Drawing.Color]::FromArgb(15, 23, 42)
-    $form.ForeColor = [System.Drawing.Color]::FromArgb(241, 245, 249)
+    $form.BackColor = $bgMain
+    $form.ForeColor = $inkMain
+    $icoPath = Join-Path $script:Paths.TrayDir 'winhelm.ico'
+    if (Test-Path -LiteralPath $icoPath) {
+        try { $form.Icon = New-Object System.Drawing.Icon($icoPath) } catch { }
+    }
+    $form.Add_HandleCreated({ Set-DarkTitleBar -Handle $form.Handle })
 
-    $lblTitle = New-Object System.Windows.Forms.Label
-    $lblTitle.Location = New-Object System.Drawing.Point(16, 14)
-    $lblTitle.Size = New-Object System.Drawing.Size(425, 24)
-    $lblTitle.Font = New-Object System.Drawing.Font('Segoe UI', 10.5, [System.Drawing.FontStyle]::Bold)
-    $lblTitle.ForeColor = [System.Drawing.Color]::FromArgb(245, 158, 11)
-    $lblTitle.Text = "Approval Required — Tool: $($Job.tool)"
-    $form.Controls.Add($lblTitle)
+    $lblToolKey = New-Object System.Windows.Forms.Label
+    $lblToolKey.Location = New-Object System.Drawing.Point(24, 18)
+    $lblToolKey.Size = New-Object System.Drawing.Size(110, 22)
+    $lblToolKey.Font = New-Object System.Drawing.Font('Segoe UI', 9.5)
+    $lblToolKey.ForeColor = $inkMuted
+    $lblToolKey.Text = 'tool'
+    $form.Controls.Add($lblToolKey)
+
+    $lblToolVal = New-Object System.Windows.Forms.Label
+    $lblToolVal.Location = New-Object System.Drawing.Point(140, 17)
+    $lblToolVal.Size = New-Object System.Drawing.Size(220, 24)
+    $lblToolVal.Font = New-Object System.Drawing.Font('Consolas', 10.5, [System.Drawing.FontStyle]::Bold)
+    $lblToolVal.ForeColor = [System.Drawing.Color]::FromArgb(74, 222, 128)
+    $lblToolVal.Text = [string]$Job.tool
+    $form.Controls.Add($lblToolVal)
+
+    $lblQueue = New-Object System.Windows.Forms.Label
+    $lblQueue.Location = New-Object System.Drawing.Point(360, 18)
+    $lblQueue.Size = New-Object System.Drawing.Size(96, 22)
+    $lblQueue.Font = New-Object System.Drawing.Font('Segoe UI', 9)
+    $lblQueue.ForeColor = $inkMuted
+    $lblQueue.TextAlign = 'MiddleRight'
+    $lblQueue.Text = "$PendingCount pending"
+    $form.Controls.Add($lblQueue)
+
+    $div1 = New-Object System.Windows.Forms.Panel
+    $div1.Location = New-Object System.Drawing.Point(24, 48)
+    $div1.Size = New-Object System.Drawing.Size(432, 1)
+    $div1.BackColor = $lineCol
+    $form.Controls.Add($div1)
+
+    $lblCmd = New-Object System.Windows.Forms.Label
+    $lblCmd.Location = New-Object System.Drawing.Point(24, 60)
+    $lblCmd.Size = New-Object System.Drawing.Size(432, 20)
+    $lblCmd.Font = New-Object System.Drawing.Font('Segoe UI', 9)
+    $lblCmd.ForeColor = $inkMuted
+    $lblCmd.Text = 'command / arguments'
+    $form.Controls.Add($lblCmd)
 
     $preview = ''
     try {
         if ($Job.args -and $Job.args.command) { $preview = [string]$Job.args.command }
         elseif ($Job.args) { $preview = ($Job.args | ConvertTo-Json -Compress) }
     } catch { }
-    if ($preview.Length -gt 240) { $preview = $preview.Substring(0, 240) + '...' }
+    if ($preview.Length -gt 280) { $preview = $preview.Substring(0, 280) + '...' }
+
+    $cardArgs = New-Object System.Windows.Forms.Panel
+    $cardArgs.Location = New-Object System.Drawing.Point(24, 86)
+    $cardArgs.Size = New-Object System.Drawing.Size(432, 102)
+    $cardArgs.BackColor = $bgCard
+    $form.Controls.Add($cardArgs)
 
     $txtArgs = New-Object System.Windows.Forms.TextBox
-    $txtArgs.Location = New-Object System.Drawing.Point(16, 46)
-    $txtArgs.Size = New-Object System.Drawing.Size(422, 95)
+    $txtArgs.Location = New-Object System.Drawing.Point(12, 10)
+    $txtArgs.Size = New-Object System.Drawing.Size(408, 82)
     $txtArgs.Multiline = $true
     $txtArgs.ReadOnly = $true
-    $txtArgs.ScrollBars = 'Vertical'
-    $txtArgs.Font = New-Object System.Drawing.Font('Consolas', 9.5)
-    $txtArgs.BackColor = [System.Drawing.Color]::FromArgb(30, 41, 59)
-    $txtArgs.ForeColor = [System.Drawing.Color]::FromArgb(226, 232, 240)
-    $txtArgs.BorderStyle = 'FixedSingle'
+    $txtArgs.TabStop = $false
+    $txtArgs.BorderStyle = 'None'
+    $txtArgs.ScrollBars = if ($preview.Length -gt 140) { 'Vertical' } else { 'None' }
+    $txtArgs.Font = New-Object System.Drawing.Font('Consolas', 10)
+    $txtArgs.BackColor = $bgCard
+    $txtArgs.ForeColor = $inkMain
     $txtArgs.Text = if ($preview) { $preview } else { "Job ID: $($Job.id)" }
-    $form.Controls.Add($txtArgs)
+    $cardArgs.Controls.Add($txtArgs)
+
+    $div2 = New-Object System.Windows.Forms.Panel
+    $div2.Location = New-Object System.Drawing.Point(24, 202)
+    $div2.Size = New-Object System.Drawing.Size(432, 1)
+    $div2.BackColor = $lineCol
+    $form.Controls.Add($div2)
+
+    $btnConsole = New-Object System.Windows.Forms.Button
+    $btnConsole.Location = New-Object System.Drawing.Point(24, 216)
+    $btnConsole.Size = New-Object System.Drawing.Size(116, 34)
+    $btnConsole.Text = 'Open Console'
+    $btnConsole.Font = New-Object System.Drawing.Font('Segoe UI', 9)
+    $btnConsole.BackColor = $bgCard
+    $btnConsole.ForeColor = $inkMuted
+    $btnConsole.FlatStyle = 'Flat'
+    $btnConsole.FlatAppearance.BorderSize = 1
+    $btnConsole.FlatAppearance.BorderColor = $lineCol
+    $btnConsole.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::FromArgb(34, 39, 49)
+    $btnConsole.DialogResult = [System.Windows.Forms.DialogResult]::Retry
+    $form.Controls.Add($btnConsole)
 
     $btnApprove = New-Object System.Windows.Forms.Button
-    $btnApprove.Location = New-Object System.Drawing.Point(258, 158)
-    $btnApprove.Size = New-Object System.Drawing.Size(90, 34)
+    $btnApprove.Location = New-Object System.Drawing.Point(272, 216)
+    $btnApprove.Size = New-Object System.Drawing.Size(92, 34)
     $btnApprove.Text = 'Approve'
-    $btnApprove.BackColor = [System.Drawing.Color]::FromArgb(16, 185, 129)
+    $btnApprove.Font = New-Object System.Drawing.Font('Segoe UI', 9.5, [System.Drawing.FontStyle]::Bold)
+    $btnApprove.BackColor = [System.Drawing.Color]::FromArgb(22, 163, 74)
     $btnApprove.ForeColor = [System.Drawing.Color]::White
     $btnApprove.FlatStyle = 'Flat'
+    $btnApprove.FlatAppearance.BorderSize = 1
+    $btnApprove.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(34, 197, 94)
+    $btnApprove.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::FromArgb(21, 128, 61)
     $btnApprove.DialogResult = [System.Windows.Forms.DialogResult]::Yes
     $form.Controls.Add($btnApprove)
 
     $btnDeny = New-Object System.Windows.Forms.Button
-    $btnDeny.Location = New-Object System.Drawing.Point(354, 158)
+    $btnDeny.Location = New-Object System.Drawing.Point(372, 216)
     $btnDeny.Size = New-Object System.Drawing.Size(84, 34)
     $btnDeny.Text = 'Deny'
-    $btnDeny.BackColor = [System.Drawing.Color]::FromArgb(239, 68, 68)
-    $btnDeny.ForeColor = [System.Drawing.Color]::White
+    $btnDeny.Font = New-Object System.Drawing.Font('Segoe UI', 9.5)
+    $btnDeny.BackColor = $bgCard
+    $btnDeny.ForeColor = [System.Drawing.Color]::FromArgb(248, 113, 113)
     $btnDeny.FlatStyle = 'Flat'
+    $btnDeny.FlatAppearance.BorderSize = 1
+    $btnDeny.FlatAppearance.BorderColor = [System.Drawing.Color]::FromArgb(127, 29, 29)
+    $btnDeny.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::FromArgb(69, 20, 24)
     $btnDeny.DialogResult = [System.Windows.Forms.DialogResult]::No
     $form.Controls.Add($btnDeny)
 
-    $btnConsole = New-Object System.Windows.Forms.Button
-    $btnConsole.Location = New-Object System.Drawing.Point(16, 158)
-    $btnConsole.Size = New-Object System.Drawing.Size(118, 34)
-    $btnConsole.Text = 'Open Console'
-    $btnConsole.BackColor = [System.Drawing.Color]::FromArgb(51, 65, 85)
-    $btnConsole.ForeColor = [System.Drawing.Color]::White
-    $btnConsole.FlatStyle = 'Flat'
-    $btnConsole.DialogResult = [System.Windows.Forms.DialogResult]::Retry
-    $form.Controls.Add($btnConsole)
-
     $form.AcceptButton = $btnApprove
     $form.CancelButton = $btnDeny
+    $form.Add_Shown({ $btnApprove.Focus() })
 
     $res = $form.ShowDialog()
     $form.Dispose()
