@@ -82,12 +82,29 @@ function Test-GatewayProcess {
     $p
 }
 
+$script:LastFunnelCheck = [datetime]::MinValue
+$script:CachedFunnelActive = $false
 function Test-IngressProcess {
-    $p = Get-ProcInfo -PidFile $script:Paths.IngressPid
-    if (-not $p) { return $null }
-    if ($p.Name -notmatch [regex]::Escape($script:IngressName)) { return $null }
-    if ($p.CommandLine -notmatch 'config\.json') { return $null }
-    $p
+    if ($script:Paths.IngressExe -and (Test-Path -LiteralPath $script:Paths.IngressExe)) {
+        $p = Get-ProcInfo -PidFile $script:Paths.IngressPid
+        if (-not $p) { return $null }
+        if ($p.Name -notmatch [regex]::Escape($script:IngressName)) { return $null }
+        if ($p.CommandLine -notmatch 'config\.json') { return $null }
+        return $p
+    }
+    if (((Get-Date) - $script:LastFunnelCheck).TotalSeconds -ge 6) {
+        $script:LastFunnelCheck = Get-Date
+        $active = $false
+        try {
+            if (Get-Command tailscale -ErrorAction SilentlyContinue) {
+                $raw = & tailscale funnel status --json 2>$null | Out-String
+                if ($raw -and ($raw | ConvertFrom-Json).AllowFunnel) { $active = $true }
+            }
+        } catch { }
+        $script:CachedFunnelActive = $active
+    }
+    if ($script:CachedFunnelActive) { return [pscustomobject]@{ Id = 'funnel'; Name = 'tailscale' } }
+    return $null
 }
 
 function Get-PortState {
@@ -159,23 +176,48 @@ function Stop-AllServices {
 }
 
 function Start-Public {
+    $script:LastFunnelCheck = [datetime]::MinValue
     $existing = Test-IngressProcess
     if ($existing) { return 'public already on' }
-    $p = Start-Process -FilePath $script:Paths.IngressExe `
-        -ArgumentList @('--config', $script:Paths.IngressConfig) `
-        -WorkingDirectory $script:Paths.IngressDir -WindowStyle Hidden `
-        -RedirectStandardOutput $script:Paths.IngressLog `
-        -RedirectStandardError (Join-Path $script:Paths.IngressDir 'ingress.stderr.log') -PassThru
-    Set-Content -LiteralPath $script:Paths.IngressPid -Value $p.Id -NoNewline -Encoding ascii
-    "public endpoint starting (pid $($p.Id)) — arming the funnel takes a few seconds"
+    if ($script:Paths.IngressExe -and (Test-Path -LiteralPath $script:Paths.IngressExe)) {
+        $p = Start-Process -FilePath $script:Paths.IngressExe `
+            -ArgumentList @('--config', $script:Paths.IngressConfig) `
+            -WorkingDirectory $script:Paths.IngressDir -WindowStyle Hidden `
+            -RedirectStandardOutput $script:Paths.IngressLog `
+            -RedirectStandardError (Join-Path $script:Paths.IngressDir 'ingress.stderr.log') -PassThru
+        Set-Content -LiteralPath $script:Paths.IngressPid -Value $p.Id -NoNewline -Encoding ascii
+        return "public endpoint starting (pid $($p.Id)) — arming the funnel takes a few seconds"
+    }
+    if (-not (Get-Command tailscale -ErrorAction SilentlyContinue)) {
+        return 'tailscale CLI not found'
+    }
+    $gwPort = 18788
+    try {
+        $cfg = Get-Content -LiteralPath $script:Paths.GatewayConfig -Raw | ConvertFrom-Json
+        if ($cfg.listenPort) { $gwPort = [int]$cfg.listenPort }
+    } catch { }
+    $out = & tailscale funnel --bg $gwPort 2>&1 | Out-String
+    $script:LastFunnelCheck = [datetime]::MinValue
+    if ($LASTEXITCODE -eq 0) { return "Tailscale Funnel ON (port $gwPort)" }
+    return "Tailscale Funnel failed: $($out.Trim())"
 }
 
 function Stop-Public {
-    $p = Test-IngressProcess
-    if (-not $p) { return 'public already off' }
-    Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
-    Remove-Item -LiteralPath $script:Paths.IngressPid -Force -ErrorAction SilentlyContinue
-    "public endpoint stopped (pid $($p.Id))"
+    $script:LastFunnelCheck = [datetime]::MinValue
+    if ($script:Paths.IngressExe -and (Test-Path -LiteralPath $script:Paths.IngressExe)) {
+        $p = Test-IngressProcess
+        if (-not $p) { return 'public already off' }
+        Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $script:Paths.IngressPid -Force -ErrorAction SilentlyContinue
+        return "public endpoint stopped (pid $($p.Id))"
+    }
+    if (-not (Get-Command tailscale -ErrorAction SilentlyContinue)) {
+        return 'tailscale CLI not found'
+    }
+    $out = & tailscale funnel --https=443 off 2>&1 | Out-String
+    $script:LastFunnelCheck = [datetime]::MinValue
+    if ($LASTEXITCODE -eq 0) { return 'Tailscale Funnel OFF' }
+    return "Tailscale Funnel stop failed: $($out.Trim())"
 }
 
 function Get-Clients {
