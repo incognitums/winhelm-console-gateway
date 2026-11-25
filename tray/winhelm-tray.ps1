@@ -904,7 +904,10 @@ if (t.startsWith('terminal_') || t === 'command_run') {
 } else {
   c.toolPolicy = { ...(c.toolPolicy || {}), [t]: 'auto' };
 }
-c.profilePreset = 'custom';
+const validPresets = new Set(['safe', 'balanced', 'power', 'minimal', 'core', 'dev', 'sysadmin', 'full']);
+if (!validPresets.has(c.profilePreset)) {
+  c.profilePreset = (c.terminal && c.terminal.mode === 'full') ? 'power' : 'balanced';
+}
 fs.writeFileSync(p, JSON.stringify(c, null, 2) + '\n', 'utf8');
 "@
         & node --input-type=module -e $js $cfgPath $ToolName 2>$null

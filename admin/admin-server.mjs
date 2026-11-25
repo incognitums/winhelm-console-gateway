@@ -63,6 +63,8 @@ function getGlobalNodeModules() {
   return cachedGlobalNodeModules;
 }
 
+const VALID_CORE_PRESETS = new Set(["safe", "balanced", "power", "minimal", "core", "dev", "sysadmin", "full"]);
+
 async function alwaysAllowToolPolicy(toolName, waitJobId = "") {
   if (!toolName || !/^[A-Za-z0-9._-]+$/.test(toolName)) return false;
   const existing = (await loadWinHelmConfig()) || { schemaVersion: 2, toolPolicy: {} };
@@ -73,7 +75,9 @@ async function alwaysAllowToolPolicy(toolName, waitJobId = "") {
   } else {
     existing.toolPolicy = { ...(existing.toolPolicy || {}), [toolName]: "auto" };
   }
-  existing.profilePreset = "custom";
+  if (!VALID_CORE_PRESETS.has(existing.profilePreset)) {
+    existing.profilePreset = existing.terminal?.mode === "full" ? "power" : "balanced";
+  }
   await saveWinHelmConfig(existing);
 
   // Wait until the just-approved job finishes (up to 15s) before restarting Core to reload policy.
@@ -1359,7 +1363,10 @@ async function handleApi(req, res, url) {
     const body = await readJsonBody(req);
     const incomingPolicy = body?.toolPolicy || {};
     const terminalMode = body?.terminalMode || "full";
-    const profilePreset = body?.profilePreset || "power";
+    const rawPreset = String(body?.profilePreset || "power").toLowerCase();
+    const profilePreset = VALID_CORE_PRESETS.has(rawPreset)
+      ? rawPreset
+      : (terminalMode === "full" ? "power" : (terminalMode === "off" ? "safe" : "balanced"));
     const folders = Array.isArray(body?.folders) && body.folders.length > 0
       ? body.folders
       : [

@@ -1598,7 +1598,9 @@ el('save').onclick = async () => {
         approvalMode: el('approval-mode-select').value,
         approvalUiMode: el('approval-ui-mode-select').value,
         folders: schemaFolders,
-        profilePreset: el('current-preset-text').textContent.toLowerCase(),
+        profilePreset: (['power', 'balanced', 'safe'].includes(el('current-preset-text').textContent.toLowerCase())
+          ? el('current-preset-text').textContent.toLowerCase()
+          : (el('terminal-mode-select').value === 'full' ? 'power' : (el('terminal-mode-select').value === 'off' ? 'safe' : 'balanced'))),
         restart: true
       })
     });
