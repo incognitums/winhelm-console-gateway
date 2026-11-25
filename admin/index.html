@@ -2009,7 +2009,8 @@ const EN_TEXT = {
   'ap.approve': '✔ Approve Now'
 };
 
-let LANG = localStorage.getItem('winhelm_lang') === 'en' ? 'en' : 'th';
+const _qLang = new URLSearchParams(location.search).get('lang');
+let LANG = (_qLang === 'en' || _qLang === 'th') ? _qLang : (localStorage.getItem('winhelm_lang') === 'en' ? 'en' : 'th');
 let activeTabId = 'tab-setup';
 const t = (th, en) => (LANG === 'en' ? en : th);
 
