@@ -424,12 +424,15 @@ async function loadConfig() {
   return JSON.parse(raw);
 }
 
-async function saveConfigAllowing(allowTools, denyTools) {
+async function saveConfigAllowing(allowTools, denyTools, extra = null) {
   const cfg = await loadConfig();
-  const before = JSON.stringify({ a: cfg.allowTools, d: cfg.denyTools });
+  const before = JSON.stringify({ a: cfg.allowTools, d: cfg.denyTools, m: cfg.approvalUiMode });
   cfg.allowTools = allowTools;
   cfg.denyTools = denyTools;
-  const after = JSON.stringify({ a: cfg.allowTools, d: cfg.denyTools });
+  if (extra && (extra.approvalUiMode === "tray_dialog" || extra.approvalUiMode === "console_only")) {
+    cfg.approvalUiMode = extra.approvalUiMode;
+  }
+  const after = JSON.stringify({ a: cfg.allowTools, d: cfg.denyTools, m: cfg.approvalUiMode });
 
   const backupDir = path.join(ROOT, "config-backups");
   await mkdir(backupDir, { recursive: true });
@@ -1291,12 +1294,14 @@ async function handleApi(req, res, url) {
       };
     });
 
+    const gwCfg = await loadConfig().catch(() => ({}));
     return json(res, 200, {
       schemaMode: isV2 ? "v2" : "legacy",
       profilePreset,
       terminalMode,
       folders,
       approvalMode: coreConfig?.approval?.mode || "smart",
+      approvalUiMode: gwCfg?.approvalUiMode === "console_only" ? "console_only" : "tray_dialog",
       tools: toolsWithPolicy,
       totalTools: CANONICAL_TOOLS.length,
       configPath: resolveWinHelmConfigPath(),
@@ -1370,7 +1375,8 @@ async function handleApi(req, res, url) {
         allowTools.push(tool.name);
       }
     }
-    const savedGw = await saveConfigAllowing(allowTools, denyTools);
+    const approvalUiMode = body?.approvalUiMode === "console_only" ? "console_only" : "tray_dialog";
+    const savedGw = await saveConfigAllowing(allowTools, denyTools, { approvalUiMode });
 
     let coreRestartResult = null;
     let gwRestartResult = null;

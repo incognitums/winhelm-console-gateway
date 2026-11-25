@@ -744,7 +744,7 @@ function Update-Ui {
         Invoke-Action (Start-Public)
     }
 
-    # Check pending Core approval jobs and surface a clickable tray notification
+    # Check pending Core approval jobs and surface Tray Dialog or Balloon Notification
     try {
         $jobsFile = Join-Path $env:USERPROFILE '.winhelm\approval-jobs.json'
         if (Test-Path -LiteralPath $jobsFile) {
@@ -759,15 +759,178 @@ function Update-Ui {
                 if ($fresh.Count -gt 0) {
                     foreach ($item in $fresh) { $script:NotifiedApprovalIds[$item.id] = $true }
                     if ($script:NotifiedApprovalIds.Count -gt 200) { $script:NotifiedApprovalIds.Clear() }
-                    $firstTool = if ($fresh[0].tool) { $fresh[0].tool } else { 'tool' }
-                    $script:PendingApprovalClick = $true
-                    $script:Notify.ShowBalloonTip(8000, "WinHelm: Approval Required ($($waiting.Count))", "Tool: $firstTool — Click to open Control Console.", 'Warning')
+                    $uiMode = Get-ApprovalUiMode
+                    $consoleOpen = Test-ConsoleWindowOpen
+                    if ($uiMode -eq 'tray_dialog' -and -not $consoleOpen) {
+                        $script:Timer.Stop()
+                        try {
+                            Show-TrayApprovalDialog -Job $fresh[0] -PendingCount $waiting.Count
+                        } finally {
+                            $script:Timer.Start()
+                        }
+                    } elseif (-not $consoleOpen) {
+                        $firstTool = if ($fresh[0].tool) { $fresh[0].tool } else { 'tool' }
+                        $script:PendingApprovalClick = $true
+                        $script:Notify.ShowBalloonTip(8000, "WinHelm: Approval Required ($($waiting.Count))", "Tool: $firstTool — Click to open Control Console.", 'Warning')
+                    }
                 }
             } else {
                 $script:PendingApprovalClick = $false
             }
         }
     } catch { }
+}
+
+function Get-ApprovalUiMode {
+    try {
+        if (Test-Path -LiteralPath $script:Paths.GatewayConfig) {
+            $cfg = Get-Content -LiteralPath $script:Paths.GatewayConfig -Raw | ConvertFrom-Json
+            if ($cfg.approvalUiMode -eq 'console_only') { return 'console_only' }
+        }
+    } catch { }
+    return 'tray_dialog'
+}
+
+function Test-ConsoleWindowOpen {
+    try {
+        $adminPort = 18789
+        try {
+            $cfg = Get-Content -LiteralPath $script:Paths.GatewayConfig -Raw | ConvertFrom-Json
+            if ($cfg.adminPort) { $adminPort = [int]$cfg.adminPort }
+        } catch { }
+        $edges = Get-CimInstance Win32_Process -Filter "Name='msedge.exe'" -ErrorAction SilentlyContinue
+        foreach ($e in $edges) {
+            if ([string]$e.CommandLine -match "--app=http://127\.0\.0\.1:$adminPort") { return $true }
+        }
+    } catch { }
+    return $false
+}
+
+$script:CachedDecisionCli = $null
+function Resolve-WinHelmDecisionCli {
+    if ($script:CachedDecisionCli -and (Test-Path -LiteralPath $script:CachedDecisionCli)) { return $script:CachedDecisionCli }
+    $candidates = @(
+        (Join-Path (Split-Path -Parent $script:Root) 'winhelm-mcp\dist\cli\decision-cli.js'),
+        (Join-Path $script:Root 'node_modules\winhelm-mcp\dist\cli\decision-cli.js')
+    )
+    if ($env:APPDATA) {
+        $candidates += (Join-Path $env:APPDATA 'npm\node_modules\winhelm-mcp\dist\cli\decision-cli.js')
+    }
+    try {
+        $gRoot = (& npm root -g 2>$null | Out-String).Trim()
+        if ($gRoot) { $candidates += (Join-Path $gRoot 'winhelm-mcp\dist\cli\decision-cli.js') }
+    } catch { }
+    foreach ($c in $candidates) {
+        if ($c -and (Test-Path -LiteralPath $c)) {
+            $script:CachedDecisionCli = $c
+            return $c
+        }
+    }
+    return $null
+}
+
+function Invoke-TrayJobDecision {
+    param([string] $JobId, [string] $Decision)
+    $cli = Resolve-WinHelmDecisionCli
+    if (-not $cli) { return [pscustomobject]@{ ok = $false; message = 'decision-cli.js not found' } }
+    $cliUrl = ([System.Uri]$cli).AbsoluteUri
+    $js = "import { decideSharedApprovalJob } from '$cliUrl'; const r = await decideSharedApprovalJob(process.argv[1], process.argv[2], 'tray'); console.log(JSON.stringify(r));"
+    try {
+        $out = & node --input-type=module -e $js $JobId $Decision 2>&1 | Out-String
+        return ($out.Trim() | ConvertFrom-Json)
+    } catch {
+        return [pscustomobject]@{ ok = $false; message = $_.Exception.Message }
+    }
+}
+
+function Show-TrayApprovalDialog {
+    param($Job, [int] $PendingCount = 1)
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = "WinHelm Approval Request ($PendingCount pending)"
+    $form.Size = New-Object System.Drawing.Size(470, 245)
+    $form.StartPosition = 'CenterScreen'
+    $form.FormBorderStyle = 'FixedDialog'
+    $form.MaximizeBox = $false
+    $form.MinimizeBox = $false
+    $form.TopMost = $true
+    $form.BackColor = [System.Drawing.Color]::FromArgb(15, 23, 42)
+    $form.ForeColor = [System.Drawing.Color]::FromArgb(241, 245, 249)
+
+    $lblTitle = New-Object System.Windows.Forms.Label
+    $lblTitle.Location = New-Object System.Drawing.Point(16, 14)
+    $lblTitle.Size = New-Object System.Drawing.Size(425, 24)
+    $lblTitle.Font = New-Object System.Drawing.Font('Segoe UI', 10.5, [System.Drawing.FontStyle]::Bold)
+    $lblTitle.ForeColor = [System.Drawing.Color]::FromArgb(245, 158, 11)
+    $lblTitle.Text = "Approval Required — Tool: $($Job.tool)"
+    $form.Controls.Add($lblTitle)
+
+    $preview = ''
+    try {
+        if ($Job.args -and $Job.args.command) { $preview = [string]$Job.args.command }
+        elseif ($Job.args) { $preview = ($Job.args | ConvertTo-Json -Compress) }
+    } catch { }
+    if ($preview.Length -gt 240) { $preview = $preview.Substring(0, 240) + '...' }
+
+    $txtArgs = New-Object System.Windows.Forms.TextBox
+    $txtArgs.Location = New-Object System.Drawing.Point(16, 46)
+    $txtArgs.Size = New-Object System.Drawing.Size(422, 95)
+    $txtArgs.Multiline = $true
+    $txtArgs.ReadOnly = $true
+    $txtArgs.ScrollBars = 'Vertical'
+    $txtArgs.Font = New-Object System.Drawing.Font('Consolas', 9.5)
+    $txtArgs.BackColor = [System.Drawing.Color]::FromArgb(30, 41, 59)
+    $txtArgs.ForeColor = [System.Drawing.Color]::FromArgb(226, 232, 240)
+    $txtArgs.BorderStyle = 'FixedSingle'
+    $txtArgs.Text = if ($preview) { $preview } else { "Job ID: $($Job.id)" }
+    $form.Controls.Add($txtArgs)
+
+    $btnApprove = New-Object System.Windows.Forms.Button
+    $btnApprove.Location = New-Object System.Drawing.Point(258, 158)
+    $btnApprove.Size = New-Object System.Drawing.Size(90, 34)
+    $btnApprove.Text = 'Approve'
+    $btnApprove.BackColor = [System.Drawing.Color]::FromArgb(16, 185, 129)
+    $btnApprove.ForeColor = [System.Drawing.Color]::White
+    $btnApprove.FlatStyle = 'Flat'
+    $btnApprove.DialogResult = [System.Windows.Forms.DialogResult]::Yes
+    $form.Controls.Add($btnApprove)
+
+    $btnDeny = New-Object System.Windows.Forms.Button
+    $btnDeny.Location = New-Object System.Drawing.Point(354, 158)
+    $btnDeny.Size = New-Object System.Drawing.Size(84, 34)
+    $btnDeny.Text = 'Deny'
+    $btnDeny.BackColor = [System.Drawing.Color]::FromArgb(239, 68, 68)
+    $btnDeny.ForeColor = [System.Drawing.Color]::White
+    $btnDeny.FlatStyle = 'Flat'
+    $btnDeny.DialogResult = [System.Windows.Forms.DialogResult]::No
+    $form.Controls.Add($btnDeny)
+
+    $btnConsole = New-Object System.Windows.Forms.Button
+    $btnConsole.Location = New-Object System.Drawing.Point(16, 158)
+    $btnConsole.Size = New-Object System.Drawing.Size(118, 34)
+    $btnConsole.Text = 'Open Console'
+    $btnConsole.BackColor = [System.Drawing.Color]::FromArgb(51, 65, 85)
+    $btnConsole.ForeColor = [System.Drawing.Color]::White
+    $btnConsole.FlatStyle = 'Flat'
+    $btnConsole.DialogResult = [System.Windows.Forms.DialogResult]::Retry
+    $form.Controls.Add($btnConsole)
+
+    $form.AcceptButton = $btnApprove
+    $form.CancelButton = $btnDeny
+
+    $res = $form.ShowDialog()
+    $form.Dispose()
+
+    if ($res -eq [System.Windows.Forms.DialogResult]::Yes) {
+        $outcome = Invoke-TrayJobDecision -JobId $Job.id -Decision 'approved'
+        $msg = if ($outcome.ok) { "Approved: $($Job.tool)" } else { "Approve failed: $($outcome.message)" }
+        $script:Notify.ShowBalloonTip(3000, 'WinHelm', $msg, 'Info')
+    } elseif ($res -eq [System.Windows.Forms.DialogResult]::No) {
+        $outcome = Invoke-TrayJobDecision -JobId $Job.id -Decision 'denied'
+        $msg = if ($outcome.ok) { "Denied: $($Job.tool)" } else { "Deny failed: $($outcome.message)" }
+        $script:Notify.ShowBalloonTip(3000, 'WinHelm', $msg, 'Warning')
+    } elseif ($res -eq [System.Windows.Forms.DialogResult]::Retry) {
+        Invoke-Action (Open-AdminConsole)
+    }
 }
 
 $script:Timer = New-Object System.Windows.Forms.Timer
