@@ -259,7 +259,7 @@ async function loadWinHelmConfig() {
   const cfgPath = resolveWinHelmConfigPath();
   if (!existsSync(cfgPath)) return null;
   try {
-    return JSON.parse(await readFile(cfgPath, "utf8"));
+    return JSON.parse((await readFile(cfgPath, "utf8")).replace(/^\uFEFF/, ""));
   } catch {
     return null;
   }
@@ -295,7 +295,7 @@ async function saveConfigUpstreamToken(token) {
 
 let initialConfig = {};
 try {
-  initialConfig = JSON.parse(readFileSync(CONFIG_PATH, "utf8"));
+  initialConfig = JSON.parse(readFileSync(CONFIG_PATH, "utf8").replace(/^\uFEFF/, ""));
 } catch {}
 
 const PORT = Number(process.env.ADMIN_PORT ?? initialConfig.adminPort ?? 18789);
@@ -463,7 +463,7 @@ async function fetchInventory(upstreamUrl, cfg = null) {
 
 async function loadConfig() {
   const raw = await readFile(CONFIG_PATH, "utf8");
-  return JSON.parse(raw);
+  return JSON.parse(raw.replace(/^\uFEFF/, ""));
 }
 
 async function saveConfigAllowing(allowTools, denyTools, extra = null) {
