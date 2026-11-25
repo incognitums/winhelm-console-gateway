@@ -444,6 +444,15 @@ $script:Notify.Visible = $true
 $script:Notify.Icon = $script:Icons.Stopped.Icon
 $script:Notify.Text = 'WinHelm Gateway (starting)'
 
+$script:NotifiedApprovalIds = @{}
+$script:PendingApprovalClick = $false
+$script:Notify.Add_BalloonTipClicked({
+    if ($script:PendingApprovalClick) {
+        $script:PendingApprovalClick = $false
+        Invoke-Action (Open-AdminConsole)
+    }
+})
+
 $script:Menu = New-Object System.Windows.Forms.ContextMenuStrip
 $script:Notify.ContextMenuStrip = $script:Menu
 
@@ -692,6 +701,31 @@ function Update-Ui {
         $script:PendingPublicStart = $null
         Invoke-Action (Start-Public)
     }
+
+    # Check pending Core approval jobs and surface a clickable tray notification
+    try {
+        $jobsFile = Join-Path $env:USERPROFILE '.winhelm\approval-jobs.json'
+        if (Test-Path -LiteralPath $jobsFile) {
+            $jData = Get-Content -LiteralPath $jobsFile -Raw -ErrorAction Stop | ConvertFrom-Json
+            $nowMs = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+            $waiting = @($jData.jobs | Where-Object {
+                ($_.state -eq 'awaiting_approval' -or $_.state -eq 'pending') -and
+                (-not $_.expiresAt -or [double]$_.expiresAt -gt $nowMs)
+            })
+            if ($waiting.Count -gt 0) {
+                $fresh = @($waiting | Where-Object { $_.id -and -not $script:NotifiedApprovalIds.ContainsKey($_.id) })
+                if ($fresh.Count -gt 0) {
+                    foreach ($item in $fresh) { $script:NotifiedApprovalIds[$item.id] = $true }
+                    if ($script:NotifiedApprovalIds.Count -gt 200) { $script:NotifiedApprovalIds.Clear() }
+                    $firstTool = if ($fresh[0].tool) { $fresh[0].tool } else { 'tool' }
+                    $script:PendingApprovalClick = $true
+                    $script:Notify.ShowBalloonTip(8000, "WinHelm: Approval Required ($($waiting.Count))", "Tool: $firstTool — Click to open Control Console.", 'Warning')
+                }
+            } else {
+                $script:PendingApprovalClick = $false
+            }
+        }
+    } catch { }
 }
 
 $script:Timer = New-Object System.Windows.Forms.Timer
