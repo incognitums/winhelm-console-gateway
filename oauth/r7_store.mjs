@@ -1775,7 +1775,7 @@ export class RegistrationStore {
         redirect_uris: [...redirectUris],
         grant_types: ["authorization_code", "refresh_token"],
         response_types: ["code"],
-        scope: "lnwjud:mcp",
+        scope: "winhelm:mcp",
         token_endpoint_auth_method: "client_secret_post",
         client_secret_hash: secretHash,
         omit_iss: Boolean(omitIss),
@@ -1823,7 +1823,7 @@ export class RegistrationStore {
     const tokenEndpointAuthMethod = params.token_endpoint_auth_method ?? params.tokenEndpointAuthMethod ?? "none";
     const softwareId = params.software_id ?? params.softwareId ?? null;
     const softwareVersion = params.software_version ?? params.softwareVersion ?? null;
-    const scope = params.scope ?? "lnwjud:mcp";
+    const scope = params.scope ?? "winhelm:mcp";
     const idempotencyKey = params.idempotency_key ?? params.idempotencyKey ?? null;
 
     if (typeof clientName !== "string" || clientName.trim().length === 0) {
@@ -1956,7 +1956,7 @@ export class RegistrationStore {
     codeChallenge,
     codeChallengeMethod = "S256",
     state,
-    scope = "lnwjud:mcp",
+    scope = "winhelm:mcp",
     resource,
     authorizationAuthority,
     browserSessionHash,
@@ -1965,7 +1965,7 @@ export class RegistrationStore {
     ttlMs = 5 * 60 * 1000,
   }) {
     const canonicalScope = canonicalizeBootstrapScope(scope);
-    if (canonicalScope !== "lnwjud:mcp") throw makeError("INVALID_SCOPE", "Unsupported OAuth scope", 400);
+    if (canonicalScope !== "winhelm:mcp") throw makeError("INVALID_SCOPE", "Unsupported OAuth scope", 400);
     if (codeChallengeMethod !== "S256" || typeof codeChallenge !== "string" || codeChallenge.length < 43) {
       throw makeError("INVALID_REQUEST", "Valid S256 code_challenge required", 400);
     }
@@ -2148,7 +2148,7 @@ export class RegistrationStore {
         return { ok: false, code: "BOOTSTRAP_LINEAGE_INVALID", status: 409, category: "security" };
       }
       if (intent.resource !== `${intent.authorization_authority}/mcp` ||
-          intent.scope !== "lnwjud:mcp" ||
+          intent.scope !== "winhelm:mcp" ||
           intent.code_challenge_method !== "S256") {
         return { ok: false, code: "BOOTSTRAP_LINEAGE_INVALID", status: 409, category: "security" };
       }
@@ -2633,7 +2633,7 @@ export class RegistrationStore {
     codeChallenge,
     codeChallengeMethod = "S256",
     state = null,
-    scope = "lnwjud:mcp",
+    scope = "winhelm:mcp",
     resource = null,
     migrationTicket = null,
     migrationAuthTransactionId = null,
@@ -2992,7 +2992,7 @@ export class RegistrationStore {
           refresh_token: refreshToken,
           expires_in: 3600,
           token_type: "Bearer",
-          scope: "lnwjud:mcp",
+          scope: "winhelm:mcp",
         };
       }
 
@@ -3046,7 +3046,7 @@ export class RegistrationStore {
         client_id: clientId,
         redirect_uri: tx.redirect_uri,
         resource: tx.resource ?? null,
-        scope: tx.scope ?? "lnwjud:mcp",
+        scope: tx.scope ?? "winhelm:mcp",
         authorization_authority: tx.authorization_authority ?? null,
         token_family_id: tokenFamilyId,
         refresh_generation: 1,
@@ -3093,7 +3093,7 @@ export class RegistrationStore {
         refresh_token: refreshToken,
         expires_in: 3600,
         token_type: "Bearer",
-        scope: "lnwjud:mcp",
+        scope: "winhelm:mcp",
       };
     });
   }

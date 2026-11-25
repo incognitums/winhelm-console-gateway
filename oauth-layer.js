@@ -112,14 +112,14 @@ export function createOAuthLayer({ store, authority, clientIds, clientId }) {
     grant_types_supported: ["authorization_code", "refresh_token"],
     code_challenge_methods_supported: ["S256"],
     token_endpoint_auth_methods_supported: ["client_secret_post", "client_secret_basic"],
-    scopes_supported: ["lnwjud:mcp"],
+    scopes_supported: ["winhelm:mcp"],
     // Gemini's callback must not receive iss, so do not advertise that we send it.
   });
 
   const protectedResourceMetadata = () => ({
     resource,
     authorization_servers: [issuer],
-    scopes_supported: ["lnwjud:mcp"],
+    scopes_supported: ["winhelm:mcp"],
     bearer_methods_supported: ["header"],
   });
 
@@ -215,7 +215,7 @@ export function createOAuthLayer({ store, authority, clientIds, clientId }) {
     const codeChallenge = p.get("code_challenge");
     const codeChallengeMethod = p.get("code_challenge_method");
     const state = p.get("state");
-    const scope = p.get("scope") ?? "lnwjud:mcp";
+    const scope = p.get("scope") ?? "winhelm:mcp";
     const requestedResource = p.get("resource") ?? resource;
 
     if (!isAdmitted(requestedClient)) {
@@ -388,7 +388,7 @@ export function createOAuthLayer({ store, authority, clientIds, clientId }) {
       console.log(String(err?.stack ?? "").split("\n").slice(0,4).join(" | "));
       if (String(code).includes("BOOTSTRAP_SUPERSESSION_CONFIRMATION_REQUIRED")) {
         const page = renderSupersessionPage({
-          intent: { bootstrap_intent_id: intentId, resource, scope: "lnwjud:mcp" },
+          intent: { bootstrap_intent_id: intentId, resource, scope: "winhelm:mcp" },
           csrfToken: session.csrfToken,
           clientName: "WinHelm",
         });
@@ -399,7 +399,7 @@ export function createOAuthLayer({ store, authority, clientIds, clientId }) {
       }
       if (String(code).includes("BOOTSTRAP_APPROVAL_UNAVAILABLE") || String(code).includes("INVITE_INVALID")) {
         const page = renderBootstrapPage({
-          intent: { bootstrap_intent_id: intentId, resource, scope: "lnwjud:mcp" },
+          intent: { bootstrap_intent_id: intentId, resource, scope: "winhelm:mcp" },
           csrfToken: session.csrfToken,
           clientName: "WinHelm",
           errorMessage: "รหัส Invite ไม่ถูกต้อง หรือหมดอายุแล้ว กรุณาตรวจสอบรหัสอีกครั้ง (Invite invalid or expired)",
@@ -420,7 +420,7 @@ export function createOAuthLayer({ store, authority, clientIds, clientId }) {
       // dead end, exactly as the reviewed R7 flow does.
       if (result?.code === "BOOTSTRAP_SUPERSESSION_CONFIRMATION_REQUIRED") {
         const page = renderSupersessionPage({
-          intent: { bootstrap_intent_id: intentId, resource, scope: "lnwjud:mcp" },
+          intent: { bootstrap_intent_id: intentId, resource, scope: "winhelm:mcp" },
           csrfToken: session.csrfToken,
           clientName: "WinHelm",
         });
@@ -431,7 +431,7 @@ export function createOAuthLayer({ store, authority, clientIds, clientId }) {
       }
       if (result?.code === "BOOTSTRAP_APPROVAL_UNAVAILABLE" || result?.code === "INVITE_INVALID") {
         const page = renderBootstrapPage({
-          intent: { bootstrap_intent_id: intentId, resource, scope: "lnwjud:mcp" },
+          intent: { bootstrap_intent_id: intentId, resource, scope: "winhelm:mcp" },
           csrfToken: session.csrfToken,
           clientName: "WinHelm",
           errorMessage: "รหัส Invite ไม่ถูกต้อง หรือหมดอายุแล้ว กรุณาตรวจสอบรหัสอีกครั้ง (Invite invalid or expired)",
@@ -592,7 +592,7 @@ export function createOAuthLayer({ store, authority, clientIds, clientId }) {
           refresh_token: tokens.refresh_token,
           expires_in: tokens.expires_in,
           token_type: tokens.token_type ?? "Bearer",
-          scope: tokens.scope ?? "lnwjud:mcp",
+          scope: tokens.scope ?? "winhelm:mcp",
         });
         return true;
       }

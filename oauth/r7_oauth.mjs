@@ -216,7 +216,11 @@ export function deriveGrantIdentityKey(oauthGrantId, enrollmentTxId) {
 
 export function canonicalizeBootstrapScope(scope) {
   if (typeof scope !== "string") return "";
-  const parts = scope.trim().split(/\s+/).filter(Boolean);
+  const parts = scope
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((s) => (s === "lnwjud:mcp" ? "winhelm:mcp" : s));
   return [...new Set(parts)].sort().join(" ");
 }
 

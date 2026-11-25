@@ -110,7 +110,7 @@
    - **Registration method:** `User-Defined OAuth Client`
    - **OAuth client ID / OAuth client secret:** กรอกค่าของ Client ที่สร้างใน WinHelm Console
    - **Token endpoint auth method:** เลือก **`client_secret_post`** (หรือ `client_secret_basic` — *ห้ามเลือก `none`*)
-   - **Scopes (หากต้องระบุ):** `lnwjud:mcp`
+   - **Scopes (หากต้องระบุ):** ปล่อยว่างไว้ หรือใส่ `winhelm:mcp`
    - *(ช่อง OAuth endpoints ระบบค้นหาอัตโนมัติจาก `/.well-known/*` ให้เอง)*
 4. ติ๊ก **I understand and want to continue** → กด **Create as a plugin** → กรอก **Invite Code** → กด **Continue** แล้วรอหน้า `Authorization complete` เด้งกลับอัตโนมัติ
 

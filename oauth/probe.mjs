@@ -88,7 +88,7 @@ const html = renderBootstrapPage({
   intent: {
     bootstrap_intent_id: "intent-probe",
     resource: "https://example.tailnet.ts.net/mcp",
-    scope: "lnwjud:mcp",
+    scope: "winhelm:mcp",
   },
   csrfToken: "csrf-probe",
   styleNonce: "nonce-probe",
