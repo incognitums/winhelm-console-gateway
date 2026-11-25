@@ -593,11 +593,11 @@
               <div class="panel-title" data-i18n="setup.guideTitle">🚀 วิธีเชื่อมต่อกับ Gemini</div>
             </div>
             <ul class="stepper">
-              <li><span class="step-num">1</span><span>เปิด Gemini → Settings → <b>Connected Apps</b> → <b>Add custom app</b></span></li>
-              <li><span class="step-num">2</span><span>วาง <b>MCP Server URL</b> จากตารางด้านซ้าย</span></li>
-              <li><span class="step-num">3</span><span>กด <b>Additional settings (Show more)</b> เพื่อเปิดช่อง OAuth</span></li>
-              <li><span class="step-num">4</span><span>กรอก <b>Client ID</b> และ <b>Client secret</b> แล้วกด Connect</span></li>
-              <li><span class="step-num">5</span><span>กรอก <b>Invite Code</b> ในหน้าล็อกอิน WinHelm → กด Continue</span></li>
+              <li><span class="step-num">1</span><span data-i18n="guide.s1">เปิด Gemini → Settings → Connected Apps → Add custom app</span></li>
+              <li><span class="step-num">2</span><span data-i18n="guide.s2">วาง MCP Server URL จากตารางด้านซ้าย</span></li>
+              <li><span class="step-num">3</span><span data-i18n="guide.s3">กด Additional settings (Show more) เพื่อเปิดช่อง OAuth</span></li>
+              <li><span class="step-num">4</span><span data-i18n="guide.s4">กรอก Client ID และ Client secret แล้วกด Connect</span></li>
+              <li><span class="step-num">5</span><span data-i18n="guide.s5">กรอก Invite Code ในหน้าล็อกอิน WinHelm → กด Continue</span></li>
             </ul>
           </div>
         </div>
@@ -682,13 +682,13 @@
 
       <div class="bar">
         <input type="search" class="search-box" id="q" placeholder="🔍 ค้นหาชื่อ tool หรือคำอธิบาย…" data-i18n-placeholder="tools.search">
-        <button id="cat-all" class="ghost on">ทั้งหมด (56)</button>
+        <button id="cat-all" class="ghost on" data-i18n="tools.catAll">ทั้งหมด (56)</button>
         <button id="cat-terminal" class="ghost">Terminal (6)</button>
         <button id="cat-filesystem" class="ghost">Filesystem (15)</button>
         <button id="cat-system" class="ghost">System (11)</button>
         <button id="cat-desktop" class="ghost">Desktop (5)</button>
         <button id="cat-integrity" class="ghost">Integrity &amp; Git (15)</button>
-        <button id="cat-network" class="ghost">Network &amp; อื่นๆ (4)</button>
+        <button id="cat-network" class="ghost" data-i18n="tools.catNetwork">Network &amp; อื่นๆ (4)</button>
         <button id="refresh" class="btn-xs" data-i18n="btn.refresh">🔄 รีเฟรช</button>
       </div>
 
@@ -976,14 +976,14 @@ async function loadSetup() {
   try {
     const s = await api('/api/setup');
     const tokenDisplay = s.hasUpstreamToken
-      ? `${s.upstreamTokenMasked} (${s.upstreamTokenSource === 'config' ? 'กำหนดใน config' : s.upstreamTokenSource === 'file' ? '~/.winhelm/auth-token' : 'env'})`
-      : '(ไม่พบ Token — กด "ซิงค์อัตโนมัติ" หรือ "แก้ไข")';
+      ? `${s.upstreamTokenMasked} (${s.upstreamTokenSource === 'config' ? t('กำหนดใน config', 'set in config') : s.upstreamTokenSource === 'file' ? '~/.winhelm/auth-token' : 'env'})`
+      : t('(ไม่พบ Token — กด "ซิงค์อัตโนมัติ" หรือ "แก้ไข")', '(Token missing — click "Auto Sync" or "Edit")');
 
     const rows = [
       ['MCP Server URL', s.serverUrl, 'server-url', true],
-      ['Client ID', s.clientId ?? '(ยังไม่มี)', 'client-id', Boolean(s.clientId)],
-      ['Client secret', s.clientSecretAvailable ? '•••••••• (DPAPI)' : '(ยังไม่มี)', 'secret', s.clientSecretAvailable],
-      ['Invite Code', s.usableInviteAlias ?? '(ยังไม่มี)', 'invite', Boolean(s.usableInviteAlias)],
+      ['Client ID', s.clientId ?? t('(ยังไม่มี)', '(none)'), 'client-id', Boolean(s.clientId)],
+      ['Client secret', s.clientSecretAvailable ? '•••••••• (DPAPI)' : t('(ยังไม่มี)', '(none)'), 'secret', s.clientSecretAvailable],
+      ['Invite Code', s.usableInviteAlias ?? t('(ยังไม่มี)', '(none)'), 'invite', Boolean(s.usableInviteAlias)],
       ['WinHelm Bearer Token', tokenDisplay, 'upstream-token', s.hasUpstreamToken],
     ];
 
@@ -991,21 +991,21 @@ async function loadSetup() {
       <div class="kv-row">
         <div class="kv-info">
           <span class="kv-key">${k}</span>
-          <span class="kv-val">${v}</span>
+          <span class="kv-val">${esc(v)}</span>
         </div>
         <div class="kv-actions">
           ${what === 'server-url' ? `
-            <button class="btn-xs" id="act-sync-domain" title="ดึงโดเมนจาก Tailscale">⚡ ซิงค์ Tailscale</button>
-            <button class="btn-xs" id="act-edit-domain">✏️ แก้ไข</button>
+            <button class="btn-xs" id="act-sync-domain" title="${t('ดึงโดเมนจาก Tailscale', 'Fetch domain from Tailscale')}">${t('⚡ ซิงค์ Tailscale', '⚡ Sync Tailscale')}</button>
+            <button class="btn-xs" id="act-edit-domain">${t('✏️ แก้ไข', '✏️ Edit')}</button>
           ` : ''}
-          ${what === 'client-id' ? `<button class="btn-xs" id="act-new-client">➕ สร้างใหม่</button>` : ''}
-          ${what === 'secret' ? `<button class="btn-xs" id="act-rotate-secret">🔄 สุ่มใหม่</button>` : ''}
+          ${what === 'client-id' ? `<button class="btn-xs" id="act-new-client">${t('➕ สร้างใหม่', '➕ New')}</button>` : ''}
+          ${what === 'secret' ? `<button class="btn-xs" id="act-rotate-secret">${t('🔄 สุ่มใหม่', '🔄 Rotate')}</button>` : ''}
           ${what === 'upstream-token' ? `
-            <button class="btn-xs" id="act-sync-token">⚡ ซิงค์อัตโนมัติ</button>
-            <button class="btn-xs" id="act-edit-token">✏️ แก้ไข</button>
-            ${s.upstreamTokenSource === 'config' ? `<button class="btn-xs danger-outline" id="act-clear-token">🗑️ ล้าง</button>` : ''}
+            <button class="btn-xs" id="act-sync-token">${t('⚡ ซิงค์อัตโนมัติ', '⚡ Auto Sync')}</button>
+            <button class="btn-xs" id="act-edit-token">${t('✏️ แก้ไข', '✏️ Edit')}</button>
+            ${s.upstreamTokenSource === 'config' ? `<button class="btn-xs danger-outline" id="act-clear-token">${t('🗑️ ล้าง', '🗑️ Clear')}</button>` : ''}
           ` : ''}
-          <button class="btn-xs" data-copy="${what}" ${enabled ? '' : 'disabled'}>📋 คัดลอก</button>
+          <button class="btn-xs" data-copy="${what}" ${enabled ? '' : 'disabled'}>${t('📋 คัดลอก', '📋 Copy')}</button>
         </div>
       </div>`).join('');
 
@@ -1107,7 +1107,7 @@ async function loadSetup() {
 
     // Update Checks & Sidebar Status
     const readyBadge = el('ready-badge');
-    readyBadge.textContent = s.ready ? 'พร้อมใช้งาน 100%' : 'ยังไม่ครบ';
+    readyBadge.textContent = s.ready ? t('พร้อมใช้งาน 100%', 'Ready 100%') : t('ยังไม่ครบ', 'Incomplete');
     readyBadge.className = 'badge ' + (s.ready ? 'badge-ok' : 'badge-warn');
 
     const mapCheck = Object.fromEntries((s.checks || []).map(c => [c.id, c]));
@@ -1119,14 +1119,33 @@ async function loadSetup() {
     setDot('dot-gw', 'st-gw', mapCheck.gateway?.ok, '18788', 'Offline');
     setDot('dot-pub', 'st-pub', mapCheck.public?.ok, 'Ready', 'Down');
 
+    const CHECK_EN = {
+      client: 'Static OAuth client registered',
+      secret: 'Client secret stored in DPAPI',
+      redirect: 'Redirect URI registered',
+      invite: 'Usable invite available',
+      upstreamToken: 'WinHelm Bearer Token',
+      upstream: 'WinHelm Core responding to tools/list',
+      gateway: 'Gateway running',
+      public: 'Public endpoint ready',
+    };
     el('setupChecks').innerHTML = s.checks.map((c) => {
       let actBtn = '';
-      if (!c.ok && c.id === 'upstream') actBtn = `<button class="btn-xs primary" onclick="startCoreService()">▶️ เริ่ม Core</button>`;
-      else if (!c.ok && c.id === 'gateway') actBtn = `<button class="btn-xs primary" onclick="startGatewayService()">▶️ เริ่ม Gateway</button>`;
+      if (!c.ok && c.id === 'upstream') actBtn = `<button class="btn-xs primary" onclick="startCoreService()">${t('▶️ เริ่ม Core', '▶️ Start Core')}</button>`;
+      else if (!c.ok && c.id === 'gateway') actBtn = `<button class="btn-xs primary" onclick="startGatewayService()">${t('▶️ เริ่ม Gateway', '▶️ Start Gateway')}</button>`;
+      const label = LANG === 'en' ? (CHECK_EN[c.id] || c.label) : c.label;
+      let hint = c.hint ?? '';
+      if (LANG === 'en') {
+        hint = hint
+          .replace('พร้อมใช้งาน', 'Ready')
+          .replace('เชื่อมต่อผ่าน Funnel / Ingress', 'Connected via Funnel / Ingress')
+          .replace('(Gemini จะเพิ่มเองเมื่อเชื่อมครั้งแรก)', '(auto-adopted on first connect)')
+          .replace('รายการ', 'entries');
+      }
       return `<li class="chk-item">
         <div class="chk-left">
           <span class="chk-dot ${c.ok ? 'ok' : 'bad'}">${c.ok ? '✔' : '✕'}</span>
-          <div><b>${c.label}</b><div class="sub">${c.hint ?? ''}</div></div>
+          <div><b>${esc(label)}</b><div class="sub">${esc(hint)}</div></div>
         </div>
         ${actBtn}
       </li>`;
@@ -1137,16 +1156,16 @@ async function loadSetup() {
     el('clientList').innerHTML = list.length ? list.map((c) => `
       <div class="kv-row" style="${c.active ? 'border-color:var(--accent)' : ''}">
         <div class="kv-info">
-          <span class="kv-key">${c.active ? '⭐ ตัวหลัก' : (c.admitted ? '🟢 ใช้งาน' : '⚪ ปิดอยู่')}</span>
-          <span class="kv-val"><b>${c.client_id}</b> <span class="sub">(${c.redirects} redirect · ${c.activeGrants} token)</span></span>
+          <span class="kv-key">${c.active ? t('⭐ ตัวหลัก', '⭐ Primary') : (c.admitted ? t('🟢 ใช้งาน', '🟢 Active') : t('⚪ ปิดอยู่', '⚪ Disabled'))}</span>
+          <span class="kv-val"><b>${esc(c.client_id)}</b> <span class="sub">(${c.redirects} redirect · ${c.activeGrants} token)</span></span>
         </div>
         <div class="kv-actions">
-          <button class="btn-xs" data-copy="client-id" data-id="${c.client_id}">📋 ID</button>
-          <button class="btn-xs" data-copy="secret" data-id="${c.client_id}" ${c.secretAvailable ? '' : 'disabled'}>🔑 Secret</button>
-          ${!c.active ? `<button class="btn-xs" data-action="select" data-id="${c.client_id}">⭐ ตั้งเป็นหลัก</button>` : ''}
-          <button class="btn-xs danger-outline" data-action="remove" data-id="${c.client_id}">🗑️</button>
+          <button class="btn-xs" data-copy="client-id" data-id="${esc(c.client_id)}">📋 ID</button>
+          <button class="btn-xs" data-copy="secret" data-id="${esc(c.client_id)}" ${c.secretAvailable ? '' : 'disabled'}>🔑 Secret</button>
+          ${!c.active ? `<button class="btn-xs" data-action="select" data-id="${esc(c.client_id)}">${t('⭐ ตั้งเป็นหลัก', '⭐ Set Primary')}</button>` : ''}
+          <button class="btn-xs danger-outline" data-action="remove" data-id="${esc(c.client_id)}">🗑️</button>
         </div>
-      </div>`).join('') : '<div class="sub">ยังไม่มี Client ในระบบ</div>';
+      </div>`).join('') : `<div class="sub">${t('ยังไม่มี Client ในระบบ', 'No OAuth clients configured')}</div>`;
 
     el('clientList').querySelectorAll('button[data-copy]').forEach((b) => {
       b.onclick = async () => {
@@ -1250,32 +1269,32 @@ async function loadInvites() {
     el('inv-reserved').textContent = invites.reduce((s, i) => s + (i.reserved || 0), 0);
 
     if (!invites.length) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">ยังไม่มี Invite ในระบบ</td></tr>';
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">${t('ยังไม่มี Invite ในระบบ', 'No invites configured')}</td></tr>`;
       return;
     }
 
     tbody.innerHTML = invites.map(i => {
-      let badge = '<span class="badge badge-ok">พร้อมใช้</span>';
-      if (i.status === 'revoked') badge = '<span class="badge badge-bad">ยกเลิกแล้ว</span>';
-      else if (i.exhausted) badge = '<span class="badge badge-bad">ใช้ครบแล้ว</span>';
-      else if (!i.has_dpapi) badge = '<span class="badge badge-bad">ไม่มี DPAPI</span>';
-      else if (i.reserved > 0) badge = `<span class="badge badge-warn">จอง ${i.reserved}</span>`;
+      let badge = `<span class="badge badge-ok">${t('พร้อมใช้', 'Usable')}</span>`;
+      if (i.status === 'revoked') badge = `<span class="badge badge-bad">${t('ยกเลิกแล้ว', 'Revoked')}</span>`;
+      else if (i.exhausted) badge = `<span class="badge badge-bad">${t('ใช้ครบแล้ว', 'Exhausted')}</span>`;
+      else if (!i.has_dpapi) badge = `<span class="badge badge-bad">${t('ไม่มี DPAPI', 'No DPAPI')}</span>`;
+      else if (i.reserved > 0) badge = `<span class="badge badge-warn">${t('จอง', 'Reserved')} ${i.reserved}</span>`;
 
-      const created = i.created_at ? new Date(i.created_at).toLocaleString('th-TH') : '-';
+      const created = i.created_at ? new Date(i.created_at).toLocaleString(LANG === 'en' ? 'en-US' : 'th-TH') : '-';
       return `<tr>
-        <td><code>${i.alias}</code></td>
+        <td><code>${esc(i.alias)}</code></td>
         <td><b>${i.used}</b> / ${i.max ?? '∞'}</td>
         <td>${i.reserved || 0}</td>
         <td>${badge}</td>
-        <td>${i.has_dpapi ? '<span style="color:var(--ok);font-weight:600">✔ มี</span>' : '<span style="color:var(--muted)">✕</span>'}</td>
-        <td class="sub">${created}</td>
+        <td>${i.has_dpapi ? `<span style="color:var(--ok);font-weight:600">${t('✔ มี', '✔ Yes')}</span>` : '<span style="color:var(--muted)">✕</span>'}</td>
+        <td class="sub">${esc(created)}</td>
         <td style="text-align:right;white-space:nowrap">
-          <button class="btn-xs" data-inv-copy="${i.alias}" ${i.has_dpapi ? '' : 'disabled'}>📋 คัดลอก</button>
-          ${i.reserved > 0 ? `<button class="btn-xs" data-inv-release="${i.alias}">🔓 ปลด</button>` : ''}
-          <button class="btn-xs" data-inv-edit="${i.alias}" data-max="${i.max ?? 1}">✏️ แก้ไข</button>
+          <button class="btn-xs" data-inv-copy="${esc(i.alias)}" ${i.has_dpapi ? '' : 'disabled'}>${t('📋 คัดลอก', '📋 Copy')}</button>
+          ${i.reserved > 0 ? `<button class="btn-xs" data-inv-release="${esc(i.alias)}">${t('🔓 ปลด', '🔓 Release')}</button>` : ''}
+          <button class="btn-xs" data-inv-edit="${esc(i.alias)}" data-max="${i.max ?? 1}">${t('✏️ แก้ไข', '✏️ Edit')}</button>
           ${i.status !== 'revoked'
-            ? `<button class="btn-xs danger-outline" data-inv-revoke="${i.alias}">⛔ ยกเลิก</button>`
-            : `<button class="btn-xs danger-outline" data-inv-del="${i.alias}">🗑️ ลบ</button>`}
+            ? `<button class="btn-xs danger-outline" data-inv-revoke="${esc(i.alias)}">${t('⛔ ยกเลิก', '⛔ Revoke')}</button>`
+            : `<button class="btn-xs danger-outline" data-inv-del="${esc(i.alias)}">${t('🗑️ ลบ', '🗑️ Delete')}</button>`}
         </td>
       </tr>`;
     }).join('');
@@ -1404,7 +1423,7 @@ async function loadSchemaV2() {
     schemaFolders = Array.isArray(res.folders) ? res.folders.map(f => ({ ...f })) : [];
     schemaDirty = false;
     el('tab-tools-count').textContent = res.tools.length;
-    el('schema-mode-text').textContent = res.schemaMode === 'v2' ? 'Schema v2 (สมบูรณ์)' : 'Legacy';
+    el('schema-mode-text').textContent = res.schemaMode === 'v2' ? t('Schema v2 (สมบูรณ์)', 'Schema v2 (Ready)') : 'Legacy';
     el('schema-mode-text').style.color = res.schemaMode === 'v2' ? 'var(--ok)' : 'var(--warn)';
     el('current-preset-text').textContent = (res.profilePreset || 'POWER').toUpperCase();
     el('terminal-mode-select').value = res.terminalMode || 'full';
@@ -1423,14 +1442,14 @@ function renderSchemaCards() {
     if (p === 'auto') autoC++; else if (p === 'ask') askC++; else offC++;
   }
   el('cards').innerHTML = [
-    ['🟢 Auto (พร้อมใช้ทันที)', autoC, 'ไม่ต้องรออนุมัติ'],
-    ['🟡 Ask (ต้องขอยืนยัน)', askC, 'ถามสิทธิ์ก่อนรัน'],
-    ['🔴 Off (ปิดการใช้งาน)', offC, 'ซ่อนไม่ให้ Agent เห็น'],
-    ['📦 รวมทั้งหมด', schemaData.totalTools, 'WinHelm Canonical Tools'],
+    [t('🟢 Auto (พร้อมใช้ทันที)', '🟢 Auto (Instant)'), autoC, t('ไม่ต้องรออนุมัติ', 'No approval needed')],
+    [t('🟡 Ask (ต้องขอยืนยัน)', '🟡 Ask (Confirm)'), askC, t('ถามสิทธิ์ก่อนรัน', 'Prompts before run')],
+    [t('🔴 Off (ปิดการใช้งาน)', '🔴 Off (Disabled)'), offC, t('ซ่อนไม่ให้ Agent เห็น', 'Hidden from Agent')],
+    [t('📦 รวมทั้งหมด', '📦 Total'), schemaData.totalTools, 'WinHelm Canonical Tools'],
   ].map(([lbl, val, hint]) => `<div class="card"><b>${val}</b><span>${lbl} · ${hint}</span></div>`).join('');
 
   el('save').disabled = !schemaDirty;
-  el('save').textContent = schemaDirty ? '💾 บันทึก Policy (Schema v2)' : '✔ บันทึกแล้ว';
+  el('save').textContent = schemaDirty ? t('💾 บันทึก Policy (Schema v2)', '💾 Save Policy (Schema v2)') : t('✔ บันทึกแล้ว', '✔ Saved');
 }
 
 function visibleSchemaTools() {
@@ -1451,29 +1470,31 @@ function visibleSchemaTools() {
 
 function renderSchemaList() {
   const filtered = visibleSchemaTools();
-  el('bulkcount').textContent = `แสดง ${filtered.length} จาก ${schemaData ? schemaData.totalTools : 56} tools`;
+  el('bulkcount').textContent = LANG === 'en'
+    ? `Showing ${filtered.length} of ${schemaData ? schemaData.totalTools : 56} tools`
+    : `แสดง ${filtered.length} จาก ${schemaData ? schemaData.totalTools : 56} tools`;
 
-  el('list').innerHTML = filtered.length ? filtered.map((t) => {
-    const cur = schemaPolicy.get(t.name) || 'auto';
+  el('list').innerHTML = filtered.length ? filtered.map((tItem) => {
+    const cur = schemaPolicy.get(tItem.name) || 'auto';
     const sel = v => cur === v ? ' checked' : '';
     const cls = v => cur === v ? ` sel-${v}` : '';
     return `<div class="tool-row">
       <div>
         <div class="tool-name">
-          <span>${t.name}</span>
-          <span class="tag-cat">${t.category}</span>
-          <span class="tag-risk">${t.risk}</span>
-          ${t.isDangerous ? '<span class="tag-danger">อันตราย</span>' : ''}
+          <span>${esc(tItem.name)}</span>
+          <span class="tag-cat">${esc(tItem.category)}</span>
+          <span class="tag-risk">${esc(tItem.risk)}</span>
+          ${tItem.isDangerous ? `<span class="tag-danger">${t('อันตราย', 'Dangerous')}</span>` : ''}
         </div>
-        <div class="tool-desc">${(t.desc || '').replace(/[<>]/g, '')}</div>
+        <div class="tool-desc">${esc(tItem.desc || '')}</div>
       </div>
       <div class="radios">
-        <label class="${cls('auto').trim()}"><input type="radio" name="sch_${t.name}" value="auto"${sel('auto')}>🟢 Auto</label>
-        <label class="${cls('ask').trim()}"><input type="radio" name="sch_${t.name}" value="ask"${sel('ask')}>🟡 Ask</label>
-        <label class="${cls('off').trim()}"><input type="radio" name="sch_${t.name}" value="off"${sel('off')}>🔴 Off</label>
+        <label class="${cls('auto').trim()}"><input type="radio" name="sch_${esc(tItem.name)}" value="auto"${sel('auto')}>🟢 Auto</label>
+        <label class="${cls('ask').trim()}"><input type="radio" name="sch_${esc(tItem.name)}" value="ask"${sel('ask')}>🟡 Ask</label>
+        <label class="${cls('off').trim()}"><input type="radio" name="sch_${esc(tItem.name)}" value="off"${sel('off')}>🔴 Off</label>
       </div>
     </div>`;
-  }).join('') : '<div style="padding:24px;text-align:center;color:var(--muted)">ไม่พบ tool ที่ตรงกับคำค้นหา</div>';
+  }).join('') : `<div style="padding:24px;text-align:center;color:var(--muted)">${t('ไม่พบ tool ที่ตรงกับคำค้นหา', 'No matching tools found')}</div>`;
 
   el('list').querySelectorAll('input[type=radio]').forEach((inp) => {
     inp.onchange = (e) => {
@@ -1592,14 +1613,14 @@ async function loadServices() {
       : `<span style="color:var(--deny);font-weight:650">● Offline</span> · Port ${s.gateway.port}`;
     el('svc-admin-meta').innerHTML = `<span style="color:var(--ok);font-weight:650">● Online</span> · Port ${s.admin.port} · PID ${s.admin.pid}`;
     el('svc-funnel-meta').innerHTML = s.funnel.active
-      ? `<span style="color:var(--ok);font-weight:650">● Funnel On</span> · ${s.funnel.authority}`
-      : (s.funnel.configured ? `<span style="color:var(--warn);font-weight:650">● Funnel Off</span> · ${s.funnel.authority}` : `<span style="color:var(--muted)">ยังไม่ได้ตั้งค่า</span>`);
+      ? `<span style="color:var(--ok);font-weight:650">● Funnel On</span> · ${esc(s.funnel.authority)}`
+      : (s.funnel.configured ? `<span style="color:var(--warn);font-weight:650">● Funnel Off</span> · ${esc(s.funnel.authority)}` : `<span style="color:var(--muted)">${t('ยังไม่ได้ตั้งค่า', 'Not configured')}</span>`);
 
     el('svc-list').innerHTML = `
       <div class="kv-row">
         <div class="kv-info">
           <span class="kv-key">WinHelm Core</span>
-          <span class="kv-val">${s.core.url} <span class="sub">(PID: ${s.core.pid ?? '-'})</span></span>
+          <span class="kv-val">${esc(s.core.url)} <span class="sub">(PID: ${s.core.pid ?? '-'})</span></span>
         </div>
         <div class="kv-actions">
           <button class="btn-xs success" onclick="svcAction('core','start')" ${s.core.running ? 'disabled' : ''}>▶️ Start</button>
@@ -1621,22 +1642,22 @@ async function loadServices() {
       <div class="kv-row">
         <div class="kv-info">
           <span class="kv-key">Tailscale Funnel (Public HTTPS)</span>
-          <span class="kv-val">${s.funnel.baseUrl || s.funnel.authority || '(ยังไม่ได้ซิงค์โดเมน)'}</span>
+          <span class="kv-val">${esc(s.funnel.baseUrl || s.funnel.authority || t('(ยังไม่ได้ซิงค์โดเมน)', '(domain not synced)'))}</span>
         </div>
         <div class="kv-actions">
-          <button class="btn-xs success" onclick="toggleFunnel('on')" ${s.funnel.active ? 'disabled' : ''}>🌐 เปิด Funnel</button>
-          <button class="btn-xs danger-outline" onclick="toggleFunnel('off')" ${s.funnel.active ? '' : 'disabled'}>🔌 ปิด Funnel</button>
+          <button class="btn-xs success" onclick="toggleFunnel('on')" ${s.funnel.active ? 'disabled' : ''}>${t('🌐 เปิด Funnel', '🌐 Enable Funnel')}</button>
+          <button class="btn-xs danger-outline" onclick="toggleFunnel('off')" ${s.funnel.active ? '' : 'disabled'}>${t('🔌 ปิด Funnel', '🔌 Disable Funnel')}</button>
         </div>
       </div>
       <div class="kv-row">
         <div class="kv-info">
-          <span class="kv-key">เปิดอัตโนมัติพร้อม Windows (Auto-Start)</span>
-          <span class="kv-val">${s.startup?.enabled ? '✅ เปิดใช้งานอยู่ (รัน WinHelm Tray อัตโนมัติเมื่อเปิดเครื่อง)' : '⚪ ปิดอยู่'}</span>
+          <span class="kv-key">${t('เปิดอัตโนมัติพร้อม Windows (Auto-Start)', 'Auto-Start with Windows')}</span>
+          <span class="kv-val">${s.startup?.enabled ? t('✅ เปิดใช้งานอยู่ (รัน WinHelm Tray อัตโนมัติเมื่อเปิดเครื่อง)', '✅ Enabled (auto-launches WinHelm Tray at startup)') : t('⚪ ปิดอยู่', '⚪ Disabled')}</span>
         </div>
         <div class="kv-actions">
           ${s.startup?.enabled
-            ? `<button class="btn-xs danger-outline" onclick="toggleStartup(false)">⏹️ ปิด Auto-Start</button>`
-            : `<button class="btn-xs primary" onclick="toggleStartup(true)">⚡ เปิด Auto-Start</button>`}
+            ? `<button class="btn-xs danger-outline" onclick="toggleStartup(false)">${t('⏹️ ปิด Auto-Start', '⏹️ Disable Auto-Start')}</button>`
+            : `<button class="btn-xs primary" onclick="toggleStartup(true)">${t('⚡ เปิด Auto-Start', '⚡ Enable Auto-Start')}</button>`}
         </div>
       </div>
       <div class="kv-row">
@@ -1789,26 +1810,26 @@ async function loadCoreMonitor() {
           <div style="height:6px;background:var(--code);border-radius:99px;overflow:hidden">
             <div style="width:${pct}%;height:100%;background:${barColor}"></div>
           </div>
-          <div class="sub" style="font-size:11px">ว่าง ${esc(d.FreeGB)} / ${esc(d.TotalGB)} GB</div>
+          <div class="sub" style="font-size:11px">${t('ว่าง', 'Free')} ${esc(d.FreeGB)} / ${esc(d.TotalGB)} GB</div>
         </div>`;
-      }).join('') : '<div class="sub">ไม่พบข้อมูลไดรฟ์</div>';
+      }).join('') : `<div class="sub">${t('ไม่พบข้อมูลไดรฟ์', 'No drives found')}</div>`;
 
       const logs = mon.logs || [];
       el('core-logs-tbody').innerHTML = logs.length ? logs.slice(0, 60).map(l => {
-        const t = l.timestamp ? new Date(l.timestamp).toLocaleTimeString('th-TH') : '-';
+        const tStr = l.timestamp ? new Date(l.timestamp).toLocaleTimeString(LANG === 'en' ? 'en-US' : 'th-TH') : '-';
         const ok = !l.status || l.status < 400;
         return `<tr>
-          <td class="sub">${esc(t)}</td>
+          <td class="sub">${esc(tStr)}</td>
           <td><span class="badge ${l.type === 'tool' ? 'badge-info' : 'badge-ok'}">${esc(l.type || 'log')}</span></td>
           <td><code>${esc(l.title || '')}</code></td>
           <td class="sub">${esc(l.detail || '')}</td>
           <td class="sub">${l.durationMs != null ? esc(l.durationMs) + ' ms' : '-'}</td>
           <td><span class="badge ${ok ? 'badge-ok' : 'badge-bad'}">${esc(l.status || 'ok')}</span></td>
         </tr>`;
-      }).join('') : '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">ยังไม่มีกิจกรรมล่าสุด</td></tr>';
+      }).join('') : `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">${t('ยังไม่มีกิจกรรมล่าสุด', 'No recent activity')}</td></tr>`;
     } else {
       el('mon-cpu').textContent = 'Offline';
-      el('core-logs-tbody').innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--deny);padding:20px">ไม่สามารถติดต่อ WinHelm Core: ${esc(mon.error || 'Offline')}</td></tr>`;
+      el('core-logs-tbody').innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--deny);padding:20px">${t('ไม่สามารถติดต่อ WinHelm Core', 'Cannot reach WinHelm Core')}: ${esc(mon.error || 'Offline')}</td></tr>`;
     }
 
     const isWaiting = (st) => st === 'awaiting_approval' || st === 'pending';
@@ -1823,17 +1844,17 @@ async function loadCoreMonitor() {
       const waiting = isWaiting(j.status);
       return `<div class="kv-row" style="${waiting ? 'border-color:var(--warn)' : ''}">
         <div class="kv-info">
-          <span class="kv-key">${esc(j.toolName || 'tool')} · ${waiting ? 'รออนุมัติ' : esc(j.status)}</span>
+          <span class="kv-key">${esc(j.toolName || 'tool')} · ${waiting ? t('รออนุมัติ', 'Pending') : esc(j.status)}</span>
           <span class="kv-val">${esc(j.summary || j.jobId || '')}</span>
         </div>
         <div class="kv-actions">
           ${waiting ? `
-            <button class="btn-xs success" data-job-id="${esc(j.jobId)}" data-decision="approve">✔ อนุมัติ</button>
-            <button class="btn-xs danger-outline" data-job-id="${esc(j.jobId)}" data-decision="deny">✕ ปฏิเสธ</button>
+            <button class="btn-xs success" data-job-id="${esc(j.jobId)}" data-decision="approve">${t('✔ อนุมัติ', '✔ Approve')}</button>
+            <button class="btn-xs danger-outline" data-job-id="${esc(j.jobId)}" data-decision="deny">${t('✕ ปฏิเสธ', '✕ Deny')}</button>
           ` : `<span class="badge ${j.status === 'approved' ? 'badge-ok' : 'badge-bad'}">${esc(j.status)}</span>`}
         </div>
       </div>`;
-    }).join('') : '<div class="sub">ไม่มีคำขอที่รออนุมัติในคิว</div>';
+    }).join('') : `<div class="sub">${t('ไม่มีคำขอที่รออนุมัติในคิว', 'No pending approval requests')}</div>`;
     jobsEl.querySelectorAll('button[data-job-id]').forEach((btn) => {
       btn.addEventListener('click', () => decideJob(btn.dataset.jobId, btn.dataset.decision));
     });
@@ -1935,6 +1956,13 @@ const EN_TEXT = {
   'setup.clientsSub': 'Select primary client for OAuth',
   'setup.healthTitle': '📡 System Readiness',
   'setup.guideTitle': '🚀 How to Connect Gemini',
+  'guide.s1': 'Open Gemini → Settings → Connected Apps → Add custom app',
+  'guide.s2': 'Paste the MCP Server URL from the left panel',
+  'guide.s3': 'Click Additional settings (Show more) to reveal OAuth fields',
+  'guide.s4': 'Enter Client ID and Client secret, then click Connect',
+  'guide.s5': 'Enter Invite Code on the WinHelm login page → click Continue',
+  'tools.catAll': 'All (56)',
+  'tools.catNetwork': 'Network & Other (4)',
   'inv.total': 'Total Invites',
   'inv.active': 'Active Grants',
   'inv.usable': 'Usable',
@@ -1983,8 +2011,9 @@ const EN_TEXT = {
 
 let LANG = localStorage.getItem('winhelm_lang') === 'en' ? 'en' : 'th';
 let activeTabId = 'tab-setup';
+const t = (th, en) => (LANG === 'en' ? en : th);
 
-function applyLang(lang) {
+function applyLang(lang, rerender = false) {
   LANG = lang === 'en' ? 'en' : 'th';
   localStorage.setItem('winhelm_lang', LANG);
   document.documentElement.lang = LANG;
@@ -2000,10 +2029,17 @@ function applyLang(lang) {
   });
   el('lang-toggle').textContent = LANG === 'en' ? '🌐 EN (ไทย)' : '🌐 ไทย (EN)';
   el('topbar-title').textContent = (TITLES[LANG] && TITLES[LANG][activeTabId]) || 'WinHelm Console';
+  if (rerender) {
+    if (activeTabId === 'tab-setup') loadSetup();
+    else if (activeTabId === 'tab-invites') loadInvites();
+    else if (activeTabId === 'tab-tools') { renderSchemaCards(); renderSchemaList(); }
+    else if (activeTabId === 'tab-services') loadServices();
+    else if (activeTabId === 'tab-monitor') loadCoreMonitor();
+  }
 }
 
-el('lang-toggle').onclick = () => applyLang(LANG === 'th' ? 'en' : 'th');
-applyLang(LANG);
+el('lang-toggle').onclick = () => applyLang(LANG === 'th' ? 'en' : 'th', true);
+applyLang(LANG, false);
 
 function switchTab(tabId) {
   activeTabId = tabId;
