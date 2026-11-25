@@ -67,9 +67,14 @@ function loadConfig() {
   return cfg;
 }
 
+const PS_EXE = process.platform === "win32"
+  ? `${process.env.SystemRoot || "C:\\Windows"}\\System32\\WindowsPowerShell\\v1.0\\powershell.exe`
+  : "powershell.exe";
+const safeLog = (v) => String(v ?? "").replace(/[\r\n\t]/g, "_");
+
 function runPowerShell(command, stdinText) {
   return new Promise((resolve) => {
-    const ps = spawn("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command], {
+    const ps = spawn(PS_EXE, ["-NoProfile", "-NonInteractive", "-Command", command], {
       stdio: [stdinText === undefined ? "ignore" : "pipe", "pipe", "pipe"],
       windowsHide: true,
     });
@@ -407,7 +412,7 @@ async function main() {
     // and this listener is on a public port.
     try {
     const ip = clientIpFromReq(req);
-    const url = new URL(req.url ?? "/", "http://gateway.invalid");
+    const url = new URL(req.url ?? "/", "https://gateway.invalid");
 
     if (url.pathname === "/healthz") {
       // Liveness only. This endpoint sits on the public path, so it must not disclose
@@ -516,7 +521,7 @@ async function main() {
 
     const blocked = findDisallowedCall(body, cfg);
     if (blocked) {
-      console.log(`${new Date().toISOString()} ${ip} ${req.method} ${url.pathname} 200 tool=${blocked.name} DENIED`);
+      console.log(`${new Date().toISOString()} ${safeLog(ip)} ${safeLog(req.method)} ${safeLog(url.pathname)} 200 tool=${safeLog(blocked.name)} DENIED`);
       res.writeHead(200, { "content-type": "application/json" });
       res.end(JSON.stringify({
         jsonrpc: "2.0",

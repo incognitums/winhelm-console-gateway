@@ -15,8 +15,10 @@ export function headerValue(req, name) {
 
 export function parseBearer(value) {
   if (typeof value !== "string") return null;
-  const match = /^Bearer\s+(.+)$/i.exec(value.trim());
-  return match ? match[1] : null;
+  const trimmed = value.trim();
+  if (!/^Bearer\s/i.test(trimmed)) return null;
+  const rest = trimmed.slice(6).trim();
+  return rest || null;
 }
 
 export function parseR7Auth(req) {

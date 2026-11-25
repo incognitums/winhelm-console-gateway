@@ -10,7 +10,7 @@
 // The token is handed to the browser in the URL fragment, which the server never receives.
 
 import http from "node:http";
-import { randomBytes, timingSafeEqual } from "node:crypto";
+import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { readFile, writeFile, copyFile, mkdir } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -82,7 +82,7 @@ async function alwaysAllowToolPolicy(toolName, waitJobId = "") {
   await saveWinHelmConfig(existing);
 
   // Wait until the just-approved job finishes (up to 15s) before restarting Core to reload policy.
-  (async () => {
+  void (async () => {
     const jobsFile = path.join(os.homedir(), ".winhelm", "approval-jobs.json");
     const deadline = Date.now() + 15000;
     while (waitJobId && Date.now() < deadline) {
@@ -101,7 +101,7 @@ async function alwaysAllowToolPolicy(toolName, waitJobId = "") {
     if (!waitJobId) await new Promise((r) => setTimeout(r, 4000));
     await stopCoreProcess().catch(() => {});
     await startCoreProcess().catch(() => {});
-  })();
+  })().catch(() => {});
   return true;
 }
 
@@ -336,13 +336,7 @@ const PLACEHOLDER_REDIRECT = "https://oauth-redirect.googleusercontent.com/r/use
 
 // ------------------------------------------------------------------ helpers
 
-const sha256 = (s) => {
-  // local import to keep the top clean
-  return cryptoHash(s);
-};
-let cryptoHash = () => { throw new Error("uninitialised"); };
-const { createHash } = await import("node:crypto");
-cryptoHash = (s) => createHash("sha256").update(s, "utf8").digest("hex");
+const sha256 = (s) => createHash("sha256").update(s, "utf8").digest("hex");
 
 function send(res, status, body, type = "application/json") {
   const buf = Buffer.isBuffer(body) ? body : Buffer.from(String(body), "utf8");

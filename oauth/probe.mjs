@@ -22,7 +22,7 @@ const storePath = path.join(dir, "store.json");
 const store = new RegistrationStore({ storePath });
 check("store constructs", store != null, storePath);
 
-const snap = store.snapshot();
+const snap = await store.snapshot();
 check("store snapshot is an object", snap && typeof snap === "object");
 check("no Core fields in snapshot", !JSON.stringify(snap).match(/core|backendHost|worker/i));
 

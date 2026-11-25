@@ -544,7 +544,7 @@
     <div class="topbar-right">
       <div class="upstream-pill">
         <span>Upstream</span>
-        <input type="text" id="upstream-input" placeholder="http://127.0.0.1:18790/mcp">
+        <input type="text" id="upstream-input" aria-label="Upstream URL" placeholder="http://127.0.0.1:18790/mcp">
         <button id="btn-detect-upstream" class="btn-xs" title="สแกนหาพอร์ต WinHelm ที่กำลังรันอยู่">🔍 Auto</button>
         <button id="btn-save-upstream" class="btn-xs primary" title="บันทึกและ Restart Gateway" data-i18n="btn.save">💾 บันทึก</button>
       </div>
@@ -649,7 +649,7 @@
             <span class="preset-pill" id="schema-mode-badge">🏷️ โหมด: <b id="schema-mode-text">Schema v2</b></span>
             <span class="preset-pill">⚡ Preset: <b id="current-preset-text">POWER</b></span>
             <span class="preset-pill">💻 Terminal:
-              <select id="terminal-mode-select">
+              <select id="terminal-mode-select" aria-label="Terminal Mode">
                 <option value="full">Full (Auto)</option>
                 <option value="ask">Ask (ยืนยัน)</option>
                 <option value="safe">Safe (ห้ามคำสั่งอันตราย)</option>
@@ -657,14 +657,14 @@
               </select>
             </span>
             <span class="preset-pill">🛡️ Approval:
-              <select id="approval-mode-select">
+              <select id="approval-mode-select" aria-label="Approval Mode">
                 <option value="smart">Smart</option>
                 <option value="manual">Manual</option>
                 <option value="trusted">Trusted</option>
               </select>
             </span>
             <span class="preset-pill">🔔 Popup:
-              <select id="approval-ui-mode-select">
+              <select id="approval-ui-mode-select" aria-label="Approval Popup Mode">
                 <option value="tray_dialog">Console + Tray Dialog</option>
                 <option value="console_only">Console Only</option>
               </select>
@@ -689,7 +689,7 @@
       </div>
 
       <div class="bar">
-        <input type="search" class="search-box" id="q" placeholder="🔍 ค้นหาชื่อ tool หรือคำอธิบาย…" data-i18n-placeholder="tools.search">
+        <input type="search" class="search-box" id="q" aria-label="Search tools" placeholder="🔍 ค้นหาชื่อ tool หรือคำอธิบาย…" data-i18n-placeholder="tools.search">
         <button id="cat-all" class="ghost on" data-i18n="tools.catAll">ทั้งหมด (56)</button>
         <button id="cat-terminal" class="ghost">Terminal (6)</button>
         <button id="cat-filesystem" class="ghost">Filesystem (15)</button>
@@ -853,7 +853,7 @@
 <!-- Custom Modal -->
 <div class="modal-backdrop" id="modal-backdrop">
   <div class="modal-box" role="dialog" aria-modal="true">
-    <h3 class="modal-title" id="modal-title"></h3>
+    <h3 class="modal-title" id="modal-title">WinHelm</h3>
     <p class="modal-desc" id="modal-desc"></p>
     <div id="modal-body"></div>
     <div class="modal-actions">
@@ -1327,8 +1327,8 @@ async function loadInvites() {
         ]
       });
       if (!res) return;
-      const quota = parseInt(res.quota, 10);
-      if (isNaN(quota) || quota < 1) return show('warn', 'โควตาต้องมากกว่า 0');
+      const quota = Number.parseInt(res.quota, 10);
+      if (Number.isNaN(quota) || quota < 1) return show('warn', 'โควตาต้องมากกว่า 0');
       await api('/api/invite/edit', { method: 'POST', body: JSON.stringify({ alias, quota, resetUsage: res.resetUsage }) });
       show('ok', `อัปเดต invite "${alias}" เรียบร้อยแล้ว`);
       await loadInvites(); await loadSetup();
@@ -1365,7 +1365,7 @@ el('btn-create-inv').onclick = async () => {
   });
   if (!res || !res.alias.trim()) return;
   try {
-    const r = await api('/api/invite', { method: 'POST', body: JSON.stringify({ alias: res.alias.trim(), quota: parseInt(res.quota, 10) || 1 }) });
+    const r = await api('/api/invite', { method: 'POST', body: JSON.stringify({ alias: res.alias.trim(), quota: Number.parseInt(res.quota, 10) || 1 }) });
     show('ok', `สร้าง invite "${r.alias}" แล้ว (คัดลอกลง Clipboard สำเร็จ)`);
     await loadInvites(); await loadSetup();
   } catch (err) { show('err', err.message); }

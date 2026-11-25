@@ -221,7 +221,7 @@ export function canonicalizeBootstrapScope(scope) {
     .split(/\s+/)
     .filter(Boolean)
     .map((s) => (s === "lnwjud:mcp" ? "winhelm:mcp" : s));
-  return [...new Set(parts)].sort().join(" ");
+  return [...new Set(parts)].sort((a, b) => a.localeCompare(b)).join(" ");
 }
 
 export function computeBootstrapRequestFingerprint({
