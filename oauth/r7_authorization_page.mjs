@@ -324,15 +324,15 @@ export function renderBootstrapPage({
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>Authorize lnwjud</title>
+<title>Authorize WinHelm</title>
 <style nonce="${escapeHtml(styleNonce)}">${shellStyles()}</style>
 </head>
 <body>
 <div class="page">
 <main class="card">
 ${brandMarkup({
-  title: "Connect to lnwjud",
-  subtitle: `Enter the registration invite to securely connect ${client} to lnwjud.`,
+  title: "Connect to WinHelm",
+  subtitle: `Enter the registration invite to securely connect ${client} to WinHelm.`,
 })}
 <section class="details" aria-label="Connection details">
 <div class="detail"><div class="detail-label"><span class="detail-icon" aria-hidden="true">C</span>Client</div><div class="detail-value">${client}</div></div>

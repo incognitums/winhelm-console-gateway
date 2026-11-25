@@ -17,7 +17,7 @@ const results = [];
 const check = (name, ok, detail = "") => results.push({ name, ok: !!ok, detail });
 
 // 1. store constructs from scratch with no pre-existing state
-const dir = mkdtempSync(path.join(tmpdir(), "lnwjud-oauth-probe-"));
+const dir = mkdtempSync(path.join(tmpdir(), "winhelm-oauth-probe-"));
 const storePath = path.join(dir, "store.json");
 const store = new RegistrationStore({ storePath });
 check("store constructs", store != null, storePath);
@@ -28,26 +28,26 @@ check("no Core fields in snapshot", !JSON.stringify(snap).match(/core|backendHos
 
 // 2. static confidential client can be created (the Gemini shape)
 const client = await store.ensureStaticOAuthClient({
-  clientId: "lnwjud-static-1",
-  clientName: "lnwjud gemini probe",
+  clientId: "winhelm-static-1",
+  clientName: "winhelm oauth probe",
   clientSecret: "probe-secret-value-that-is-long-enough-0123456789",
   redirectUris: ["https://oauth-redirect.googleusercontent.com/r/probe"],
 });
 check("static client created", client != null, `type=${client?.client_type} auth=${client?.token_endpoint_auth_method}`);
 
-const found = await store.findOAuthClient("lnwjud-static-1");
-check("static client readable", found?.client_id === "lnwjud-static-1");
+const found = await store.findOAuthClient("winhelm-static-1");
+check("static client readable", found?.client_id === "winhelm-static-1");
 
 // 3. client_secret authentication path works
 const authed = await store.authenticateTokenClient({
-  clientId: "lnwjud-static-1",
+  clientId: "winhelm-static-1",
   clientSecret: "probe-secret-value-that-is-long-enough-0123456789",
 });
 check("client_secret_post accepted", authed != null);
 
 let rejected = false;
 try {
-  await store.authenticateTokenClient({ clientId: "lnwjud-static-1", clientSecret: "wrong" });
+  await store.authenticateTokenClient({ clientId: "winhelm-static-1", clientSecret: "wrong" });
 } catch {
   rejected = true;
 }
@@ -96,7 +96,7 @@ const html = renderBootstrapPage({
 check("bootstrap page renders", typeof html === "string" && html.includes("<form"), `len=${html.length}`);
 
 // 9. default path is no longer a WinHelm path
-check("default path rebranded", defaultR7StorePath().includes(".lnwjud"), defaultR7StorePath());
+check("default path rebranded", defaultR7StorePath().includes(".winhelm"), defaultR7StorePath());
 
 for (const r of results) {
   console.log(`${r.ok ? "PASS" : "FAIL"}  ${r.name.padEnd(38)} ${r.detail}`);

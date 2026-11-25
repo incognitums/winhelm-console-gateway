@@ -1,4 +1,4 @@
-// OAuth 2.1 authorization-server layer for the lnwjud gateway.
+// OAuth 2.1 authorization-server layer for the WinHelm gateway.
 //
 // Scope on purpose: one static confidential client (the Gemini shape), no DCR, no
 // multi-adapter branching, no migration lane. Admission still goes through the
@@ -13,7 +13,7 @@ import { randomBytes } from "node:crypto";
 import { sha256Hex } from "./oauth/r7_oauth.mjs";
 import { renderBootstrapPage, renderSupersessionPage, renderTerminalPage } from "./oauth/r7_authorization_page.mjs";
 
-const SESSION_COOKIE = "lnwjud_sid";
+const SESSION_COOKIE = "winhelm_sid";
 const SESSION_TTL_MS = 10 * 60 * 1000;
 const MAX_FORM_BYTES = 64 * 1024;
 const MAX_WRONG_METHOD_ALLOW = "GET, POST";

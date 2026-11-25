@@ -1,4 +1,4 @@
-// Operator CLI for the lnwjud OAuth layer.
+// Operator CLI for the WinHelm OAuth layer.
 //
 //   node oauth-setup.mjs --status
 //   node oauth-setup.mjs --init-client --redirect-uri <exact URI from Gemini>
@@ -117,7 +117,7 @@ async function createClient({ store, storePath, clientId, redirectUri }) {
   const clientSecret = randomBytes(36).toString("base64url");
   const client = await store.ensureStaticOAuthClient({
     clientId,
-    clientName: "lnwjud gemini web",
+    clientName: "winhelm oauth client",
     clientSecret,
     redirectUris: [redirectUri],
     omitIss: true,

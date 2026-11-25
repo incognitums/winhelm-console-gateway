@@ -46,8 +46,8 @@ $script:Paths = @{
     StartCorePs1  = Join-Path $script:Root 'start-core.ps1'
     StopCorePs1   = Join-Path $script:Root 'stop-core.ps1'
 
-    IngressDir    = 'D:\mcp\lnwjud-gemini-ingress'
-    IngressExe    = 'D:\mcp\winhelm-r7-go-tls-ingress-spike-r1-20261016\winhelm-go-tls-ingress-r1-qualprep2.exe'
+    IngressDir    = $script:Root
+    IngressExe    = ''
 }
 $script:Paths.IngressPid = Join-Path $script:Paths.IngressDir 'ingress.pid'
 $script:Paths.IngressLog = Join-Path $script:Paths.IngressDir 'ingress.stdout.log'
@@ -86,7 +86,7 @@ function Test-IngressProcess {
     $p = Get-ProcInfo -PidFile $script:Paths.IngressPid
     if (-not $p) { return $null }
     if ($p.Name -notmatch [regex]::Escape($script:IngressName)) { return $null }
-    if ($p.CommandLine -notmatch 'lnwjud-gemini-ingress[\\/]config\.json') { return $null }
+    if ($p.CommandLine -notmatch 'config\.json') { return $null }
     $p
 }
 

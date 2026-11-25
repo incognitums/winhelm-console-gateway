@@ -470,8 +470,8 @@ async function main() {
         return;
       }
       const challenge = oauth
-        ? `Bearer realm="lnwjud", resource_metadata="${cfg.oauth.authority}/.well-known/oauth-protected-resource"`
-        : 'Bearer realm="lnwjud"';
+        ? `Bearer realm="winhelm", resource_metadata="${cfg.oauth.authority}/.well-known/oauth-protected-resource"`
+        : 'Bearer realm="winhelm"';
       res.writeHead(401, { "content-type": "application/json", "www-authenticate": challenge });
       res.end(JSON.stringify({ jsonrpc: "2.0", error: { code: -32001, message: "UNAUTHORIZED" }, id: null }));
       return;

@@ -626,7 +626,7 @@ async function acquireLock(lockPath, {
 }
 
 export function defaultR7StorePath() {
-  return path.join(os.homedir(), ".lnwjud", "registered-oauth.json");
+  return path.join(os.homedir(), ".winhelm", "registered-oauth.json");
 }
 
 export function generateInviteCredential() {
