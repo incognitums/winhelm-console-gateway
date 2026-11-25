@@ -386,6 +386,8 @@
   .tag-cat { font: 600 11px sans-serif; padding: 2px 7px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
   .tag-risk { font: 700 10.5px monospace; padding: 1px 6px; border-radius: 5px; background: var(--card-2); border: 1px solid var(--line); color: var(--muted); }
   .tag-danger { font: 650 11px sans-serif; padding: 2px 7px; border-radius: 99px; background: var(--deny-soft); color: var(--deny); }
+  .tag-trusted { font: 650 11px sans-serif; padding: 2px 8px; border-radius: 99px; background: rgba(16, 185, 129, 0.16); border: 1px solid rgba(16, 185, 129, 0.4); color: var(--ok); cursor: pointer; }
+  .tag-trusted:hover { background: var(--deny-soft); border-color: var(--deny); color: var(--deny); }
 
   .radios {
     display: inline-flex; background: var(--card-2); border: 1px solid var(--line);
@@ -1482,8 +1484,10 @@ function renderSchemaList() {
     ? `Showing ${filtered.length} of ${schemaData ? schemaData.totalTools : 56} tools`
     : `แสดง ${filtered.length} จาก ${schemaData ? schemaData.totalTools : 56} tools`;
 
+  const approvalMode = el('approval-mode-select').value;
   el('list').innerHTML = filtered.length ? filtered.map((tItem) => {
     const cur = schemaPolicy.get(tItem.name) || 'auto';
+    const isTrustedActive = approvalMode === 'trusted' && cur === 'auto' && !['R0', 'R1'].includes(tItem.risk);
     const sel = v => cur === v ? ' checked' : '';
     const cls = v => cur === v ? ` sel-${v}` : '';
     return `<div class="tool-row">
@@ -1493,6 +1497,7 @@ function renderSchemaList() {
           <span class="tag-cat">${esc(tItem.category)}</span>
           <span class="tag-risk">${esc(tItem.risk)}</span>
           ${tItem.isDangerous ? `<span class="tag-danger">${t('อันตราย', 'Dangerous')}</span>` : ''}
+          ${isTrustedActive ? `<button type="button" class="tag-trusted" data-untrust="${esc(tItem.name)}" title="${t('กำลังรันอัตโนมัติในโหมด Trusted — คลิกเพื่อปลดกลับเป็น Ask', 'Running auto under Trusted mode — click to revert to Ask')}">${t('⚡ Trusted ×', '⚡ Trusted ×')}</button>` : ''}
         </div>
         <div class="tool-desc">${esc(tItem.desc || '')}</div>
       </div>
@@ -1503,6 +1508,24 @@ function renderSchemaList() {
       </div>
     </div>`;
   }).join('') : `<div style="padding:24px;text-align:center;color:var(--muted)">${t('ไม่พบ tool ที่ตรงกับคำค้นหา', 'No matching tools found')}</div>`;
+
+  el('list').querySelectorAll('button[data-untrust]').forEach((btn) => {
+    btn.onclick = () => {
+      const tName = btn.dataset.untrust;
+      if (tName.startsWith('terminal_') || tName === 'command_run') {
+        el('terminal-mode-select').value = 'ask';
+        for (const tn of ['terminal_run', 'terminal_task_start', 'terminal_task_send', 'terminal_task_kill', 'command_run']) {
+          if (schemaPolicy.has(tn)) schemaPolicy.set(tn, 'ask');
+        }
+      } else {
+        schemaPolicy.set(tName, 'ask');
+      }
+      el('current-preset-text').textContent = 'CUSTOM';
+      schemaDirty = true;
+      show('warn', t(`ปลด Trusted ของ "${tName}" กลับเป็น Ask แล้ว — กด "บันทึก Policy" เพื่อนำไปใช้`, `Reverted "${tName}" to Ask — click Save Policy to apply`));
+      renderSchemaCards(); renderSchemaList();
+    };
+  });
 
   el('list').querySelectorAll('input[type=radio]').forEach((inp) => {
     inp.onchange = (e) => {
@@ -1583,7 +1606,7 @@ el('terminal-mode-select').onchange = () => {
   renderSchemaCards();
   renderSchemaList();
 };
-el('approval-mode-select').onchange = () => { el('current-preset-text').textContent = 'CUSTOM'; schemaDirty = true; renderSchemaCards(); };
+el('approval-mode-select').onchange = () => { el('current-preset-text').textContent = 'CUSTOM'; schemaDirty = true; renderSchemaCards(); renderSchemaList(); };
 el('approval-ui-mode-select').onchange = () => { schemaDirty = true; renderSchemaCards(); };
 
 el('save').onclick = async () => {
