@@ -73,6 +73,7 @@ async function alwaysAllowToolPolicy(toolName) {
   } else {
     existing.toolPolicy = { ...(existing.toolPolicy || {}), [toolName]: "auto" };
   }
+  existing.profilePreset = "custom";
   await saveWinHelmConfig(existing);
   // Reload WinHelm Core after 2s so the just-approved job finishes before Core restarts with the new policy.
   setTimeout(() => {

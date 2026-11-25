@@ -1506,7 +1506,10 @@ function renderSchemaList() {
 
   el('list').querySelectorAll('input[type=radio]').forEach((inp) => {
     inp.onchange = (e) => {
-      schemaPolicy.set(e.target.name.replace(/^sch_/, ''), e.target.value);
+      const tName = e.target.name.replace(/^sch_/, '');
+      const val = e.target.value;
+      schemaPolicy.set(tName, val);
+      el('current-preset-text').textContent = 'CUSTOM';
       schemaDirty = true;
       renderSchemaCards(); renderSchemaList();
     };
@@ -1527,6 +1530,7 @@ const bulkSetSchema = (val) => {
   const tools = visibleSchemaTools();
   if (!tools.length) return;
   for (const t of tools) schemaPolicy.set(t.name, val);
+  el('current-preset-text').textContent = 'CUSTOM';
   schemaDirty = true;
   show('warn', `ตั้งค่า ${tools.length} tools เป็น "${val}" — กด "บันทึก Policy" เพื่อนำไปใช้`);
   renderSchemaCards(); renderSchemaList();
@@ -1568,8 +1572,18 @@ el('preset-safe').onclick = () => {
   renderSchemaCards(); renderSchemaList();
 };
 
-el('terminal-mode-select').onchange = () => { schemaDirty = true; renderSchemaCards(); };
-el('approval-mode-select').onchange = () => { schemaDirty = true; renderSchemaCards(); };
+el('terminal-mode-select').onchange = () => {
+  const mode = el('terminal-mode-select').value;
+  const mapped = mode === 'full' ? 'auto' : (mode === 'off' ? 'off' : 'ask');
+  for (const tn of ['terminal_run', 'terminal_task_start', 'terminal_task_send', 'terminal_task_kill', 'command_run']) {
+    if (schemaPolicy.has(tn)) schemaPolicy.set(tn, mapped);
+  }
+  el('current-preset-text').textContent = 'CUSTOM';
+  schemaDirty = true;
+  renderSchemaCards();
+  renderSchemaList();
+};
+el('approval-mode-select').onchange = () => { el('current-preset-text').textContent = 'CUSTOM'; schemaDirty = true; renderSchemaCards(); };
 el('approval-ui-mode-select').onchange = () => { schemaDirty = true; renderSchemaCards(); };
 
 el('save').onclick = async () => {

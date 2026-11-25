@@ -887,6 +887,7 @@ if (t.startsWith('terminal_') || t === 'command_run') {
 } else {
   c.toolPolicy = { ...(c.toolPolicy || {}), [t]: 'auto' };
 }
+c.profilePreset = 'custom';
 fs.writeFileSync(p, JSON.stringify(c, null, 2) + '\n', 'utf8');
 "@
         & node --input-type=module -e $js $cfgPath $ToolName 2>$null
