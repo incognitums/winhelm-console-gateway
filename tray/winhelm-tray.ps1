@@ -743,6 +743,10 @@ function Update-Ui {
         $script:PendingPublicStart = $null
         Invoke-Action (Start-Public)
     }
+    if ($script:PendingCoreRestart -and ((Get-Date) - $script:PendingCoreRestart).TotalSeconds -ge 2) {
+        $script:PendingCoreRestart = $null
+        Invoke-Action ((Stop-Core) + "`n" + (Start-Core))
+    }
 
     # Check pending Core approval jobs and surface Tray Dialog or Balloon Notification
     try {
@@ -1061,8 +1065,11 @@ function Show-TrayApprovalDialog {
         }
         $outcome = Invoke-TrayJobDecision -JobId $Job.id -Decision 'approved'
         $polOk = $false
-        if ($outcome.ok) { $polOk = Set-TrayToolAlwaysAuto -ToolName $tn }
-        $msg = if ($outcome.ok -and $polOk) { "Always Approved: $tn (Auto)" } elseif ($outcome.ok) { "Approved once (policy file not found)" } else { "Approve failed: $($outcome.message)" }
+        if ($outcome.ok) {
+            $polOk = Set-TrayToolAlwaysAuto -ToolName $tn
+            if ($polOk) { $script:PendingCoreRestart = Get-Date }
+        }
+        $msg = if ($outcome.ok -and $polOk) { "Always Approved: $tn (reloading Core policy)" } elseif ($outcome.ok) { "Approved once (policy file not found)" } else { "Approve failed: $($outcome.message)" }
         $script:Notify.ShowBalloonTip(3500, 'WinHelm', $msg, 'Info')
     } elseif ($res -eq [System.Windows.Forms.DialogResult]::Yes) {
         $outcome = Invoke-TrayJobDecision -JobId $Job.id -Decision 'approved'

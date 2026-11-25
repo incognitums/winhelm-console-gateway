@@ -74,10 +74,14 @@ async function alwaysAllowToolPolicy(toolName) {
     existing.toolPolicy = { ...(existing.toolPolicy || {}), [toolName]: "auto" };
   }
   await saveWinHelmConfig(existing);
+  // Reload WinHelm Core after 2s so the just-approved job finishes before Core restarts with the new policy.
+  setTimeout(() => {
+    stopCoreProcess().then(() => startCoreProcess()).catch(() => {});
+  }, 2000);
   return true;
 }
 
-async function resolveWinHelmCoreFile(...segments) {
+function resolveWinHelmCoreFile(...segments) {
   const candidates = [
     path.join(WINHELM_CORE_DIR, ...segments),
     path.join(ROOT, "node_modules", "winhelm-mcp", ...segments),
